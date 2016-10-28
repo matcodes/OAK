@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>8d3698fa-6173-4bb8-9fcf-a58c6bffa39f</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Oak</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)App.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\BaseData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\BaseViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\IndexToBoolConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\ReverseBoolConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\AppActivityIndicatorColors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\AppFonts.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\CameraOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\ProductCategories.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\StartPageStates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Messages\CloseAppMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\VisualCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\AppActivityIndicator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\AppButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\AppCameraPreview.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\AppTextCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\AppLabel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\OakViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\StartViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\MainPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\OakPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\StartPage.cs" />
+  </ItemGroup>
+</Project>
