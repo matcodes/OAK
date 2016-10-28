@@ -105,7 +105,7 @@ namespace Oak.Droid.Bluetooth
         {
             lock (_stateLocker)
             {
-                Console.WriteLine("{0}: SetState() -> {1}", TAG, state);
+                System.Console.WriteLine("{0}: SetState() -> {1}", TAG, state);
                 _state = state;
                 _handler.ObtainMessage(BluetoothState.MESSAGE_STATE_CHANGE, state, -1).SendToTarget();
             }

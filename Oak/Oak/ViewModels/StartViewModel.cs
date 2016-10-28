@@ -11,6 +11,8 @@ namespace Oak.ViewModels
     #region StartViewModel
     public class StartViewModel : OakViewModel
     {
+        private StartPageStates _oldState = StartPageStates.Starting;
+
         public StartViewModel() : base()
         {
             this.StartConnectionCommand = new VisualCommand(this.StartConnection);
@@ -59,6 +61,18 @@ namespace Oak.ViewModels
             var result = base.HandleBackButton();
 
 
+            /*
+            SelectProduct = 4,
+        CameraHelp = 5,
+        Camera = 6,
+        Scan = 7,
+        Store = 8,
+        Keep = 9,
+        Programs = 10,
+        Rescan = 11,
+        Compare = 12,
+        Check = 13
+        */
             return result;
         }
 
@@ -67,6 +81,9 @@ namespace Oak.ViewModels
             if (propertyName == "State")
             {
                 this.StartConnectionCommand.IsEnabled = (this.State == StartPageStates.WaitConnection);
+
+                if ((this.State == StartPageStates.Programs) || (this.State == StartPageStates.Check))
+                    _oldState = this.State;
             }
 
             base.DoPropertyChanged(propertyName);

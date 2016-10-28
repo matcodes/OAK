@@ -49,6 +49,8 @@ namespace Oak.Views
         private StackLayout _connectingDownText = null;
         private StackLayout _connectedDownText = null;
 
+        private StartPageStates _oldState = StartPageStates.Starting;
+
         private ReverseBoolConverter _reverseBoolConverter = new ReverseBoolConverter();
 
         public StartPage() : base()
@@ -109,7 +111,63 @@ namespace Oak.Views
                     this.ShowComparePanel();
                 else if (this.State == StartPageStates.Check)
                     this.ShowCheckPanel();
+
+                if ((this.State == StartPageStates.Keep) || (this.State == StartPageStates.Programs) || 
+                    (this.State == StartPageStates.Compare) || (this.State == StartPageStates.Check))
+                    _oldState = this.State;
+
             }
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            var result = false;
+            if (this.State == StartPageStates.CameraHelp)
+            {
+                this.State = StartPageStates.SelectProduct;
+                result = true;
+            }
+            else if (this.State == StartPageStates.Camera)
+            {
+                this.State = StartPageStates.CameraHelp;
+                result = true;
+            }
+            else if (this.State == StartPageStates.Scan)
+            {
+                this.State = StartPageStates.Camera;
+                result = true;
+            }
+            else if (this.State == StartPageStates.Store)
+            {
+                this.State = StartPageStates.Scan;
+                result = true;
+            }
+            else if (this.State == StartPageStates.Keep)
+            {
+                this.State = StartPageStates.Store;
+                result = true;
+            }
+            else if (this.State == StartPageStates.Programs)
+            {
+                this.State = StartPageStates.Keep;
+                result = true;
+            }
+            else if (this.State == StartPageStates.Rescan)
+            {
+                this.State = _oldState;
+                result = true;
+            }
+            else if (this.State == StartPageStates.Compare)
+            {
+                this.State = StartPageStates.Store;
+                result = true;
+            }
+            else if (this.State == StartPageStates.Check)
+            {
+                this.State = StartPageStates.Compare;
+                result = true;
+            }
+            return result;
         }
 
         private void ShowStartingPanel()
@@ -210,6 +268,7 @@ namespace Oak.Views
         {
             Device.BeginInvokeOnMainThread(() => {
                 _mainPanel.RaiseChild(_selectProductPanel);
+                _cameraHelpPanel.FadeTo(0, ANIMATION_TIME);
                 _selectProductPanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -219,6 +278,7 @@ namespace Oak.Views
             Device.BeginInvokeOnMainThread(() => {
                 _mainPanel.RaiseChild(_cameraHelpPanel);
                 _selectProductPanel.FadeTo(0, ANIMATION_TIME);
+                _cameraPanel.FadeTo(0, ANIMATION_TIME);
                 _cameraHelpPanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -228,6 +288,7 @@ namespace Oak.Views
             Device.BeginInvokeOnMainThread(() => {
                 _mainPanel.RaiseChild(_cameraPanel);
                 _cameraHelpPanel.FadeTo(0, ANIMATION_TIME);
+                _scanPanel.FadeTo(0, ANIMATION_TIME);
                 _cameraPanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -237,6 +298,7 @@ namespace Oak.Views
             Device.BeginInvokeOnMainThread(() => {
                 _mainPanel.RaiseChild(_scanPanel);
                 _cameraPanel.FadeTo(0, ANIMATION_TIME);
+                _storePanel.FadeTo(0, ANIMATION_TIME);
                 _scanPanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -247,6 +309,8 @@ namespace Oak.Views
                 _mainPanel.RaiseChild(_storePanel);
                 _scanPanel.FadeTo(0, ANIMATION_TIME);
                 _rescanPanel.FadeTo(0, ANIMATION_TIME);
+                _keepPanel.FadeTo(0, ANIMATION_TIME);
+                _comparePanel.FadeTo(0, ANIMATION_TIME);
                 _storePanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -256,6 +320,7 @@ namespace Oak.Views
             Device.BeginInvokeOnMainThread(() => {
                 _mainPanel.RaiseChild(_keepPanel);
                 _storePanel.FadeTo(0, ANIMATION_TIME);
+                _programsPanel.FadeTo(0, ANIMATION_TIME);
                 _keepPanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -265,6 +330,7 @@ namespace Oak.Views
             Device.BeginInvokeOnMainThread(() => {
                 _mainPanel.RaiseChild(_programsPanel);
                 _keepPanel.FadeTo(0, ANIMATION_TIME);
+                _rescanPanel.FadeTo(0, ANIMATION_TIME);
                 _programsPanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -286,6 +352,7 @@ namespace Oak.Views
             Device.BeginInvokeOnMainThread(() => {
                 _mainPanel.RaiseChild(_comparePanel);
                 _storePanel.FadeTo(0, ANIMATION_TIME);
+                _checkPanel.FadeTo(0, ANIMATION_TIME);
                 _comparePanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -295,6 +362,7 @@ namespace Oak.Views
             Device.BeginInvokeOnMainThread(() => {
                 _mainPanel.RaiseChild(_checkPanel);
                 _comparePanel.FadeTo(0, ANIMATION_TIME);
+                _rescanPanel.FadeTo(0, ANIMATION_TIME);
                 _checkPanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -1149,7 +1217,7 @@ namespace Oak.Views
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = Color.Silver,
+                TextColor = BUTTON_TEXT_COLOR,
                 Text = "1"
             };
             program1.SetBinding(AppButton.CommandProperty, "Program1Command");

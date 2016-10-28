@@ -40,6 +40,7 @@ namespace Oak.Views
                 }
             };
         }
+
         private View BuildPageContent()
         {
             var busyIndicator = new ActivityIndicator
