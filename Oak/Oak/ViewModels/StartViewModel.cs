@@ -1,20 +1,24 @@
 ﻿using Oak.Classes;
 using Oak.Classes.Enums;
 using Oak.Classes.Messages;
+using Oak.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace Oak.ViewModels
 {
     #region StartViewModel
     public class StartViewModel : OakViewModel
     {
-        private StartPageStates _oldState = StartPageStates.Starting;
+        private readonly IScannerService _scannerService = null;
 
         public StartViewModel() : base()
         {
+            _scannerService = DependencyService.Get<IScannerService>();
+
             this.StartConnectionCommand = new VisualCommand(this.StartConnection);
             this.AlcoholCommand = new VisualCommand(this.Alcohol);
             this.OilCommand = new VisualCommand(this.Oil);
@@ -56,34 +60,11 @@ namespace Oak.ViewModels
             base.Disappering();
         }
 
-        public override bool HandleBackButton()
-        {
-            var result = base.HandleBackButton();
-
-
-            /*
-            SelectProduct = 4,
-        CameraHelp = 5,
-        Camera = 6,
-        Scan = 7,
-        Store = 8,
-        Keep = 9,
-        Programs = 10,
-        Rescan = 11,
-        Compare = 12,
-        Check = 13
-        */
-            return result;
-        }
-
         protected override void DoPropertyChanged(string propertyName)
         {
             if (propertyName == "State")
             {
                 this.StartConnectionCommand.IsEnabled = (this.State == StartPageStates.WaitConnection);
-
-                if ((this.State == StartPageStates.Programs) || (this.State == StartPageStates.Check))
-                    _oldState = this.State;
             }
 
             base.DoPropertyChanged(propertyName);
@@ -91,10 +72,11 @@ namespace Oak.ViewModels
 
         private void StartConnection(object parameter)
         {
-            Task.Run(() => {
-                this.State = StartPageStates.Connecting;
+            Task.Run(async () => {
                 try
                 {
+                    this.State = StartPageStates.Connecting;
+                    var result = await _scannerService.ConnectAsync();
                     Task.Delay(5000).Wait();
                     this.State = StartPageStates.Connected;
                 }

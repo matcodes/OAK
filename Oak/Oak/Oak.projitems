@@ -26,6 +26,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppCameraPreview.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppTextCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppLabel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\IScannerService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\OakViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\StartViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\MainPage.cs" />

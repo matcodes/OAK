@@ -11,9 +11,9 @@ using Android.Views;
 using Android.Widget;
 using Android.Bluetooth;
 using Java.Lang;
-using Java.IO;
 using Java.Util;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace Oak.Droid.Bluetooth
 {
@@ -39,6 +39,10 @@ namespace Oak.Droid.Bluetooth
         private readonly object _stateLocker = new object();
         private readonly object _acceptLocket = new object();
         private readonly object _connectLocker = new object();
+
+        private BluetoothSocket _socket = null;
+        private Stream _inputStream = null;
+        private Stream _outputStream = null;
 
         public BluetoothService(Context context, Handler handler)
         {
@@ -67,7 +71,7 @@ namespace Oak.Droid.Bluetooth
             this.State = BluetoothState.STATE_NONE;
         }
 
-        public void Connect(BluetoothDevice device)
+        public void Connect()
         {
             lock (_connectLocker)
             {
@@ -82,19 +86,19 @@ namespace Oak.Droid.Bluetooth
             }
         }
 
-        public void Connected(BluetoothSocket socket, BluetoothDevice device)
+        public void Connected()
         {
             this.CancelConnect();
             this.CancelConnected();
 
             this.CancelAccept();
 
-            this.RunConnected();
+            this.RunConnected(_socket);
 
             Message message = _handler.ObtainMessage(BluetoothState.MESSAGE_DEVICE_NAME);
             var bundle = new Bundle();
-            bundle.PutString(BluetoothState.DEVICE_NAME, device.Name);
-            bundle.PutString(BluetoothState.DEVICE_ADDRESS, device.Address);
+            bundle.PutString(BluetoothState.DEVICE_NAME, _socket.RemoteDevice.Name);
+            bundle.PutString(BluetoothState.DEVICE_ADDRESS, _socket.RemoteDevice.Address);
             message.Data = bundle;
             _handler.SendMessage(message);
 
@@ -117,6 +121,16 @@ namespace Oak.Droid.Bluetooth
             {
                 return _state;
             }
+        }
+
+        private void ConnectionLost()
+        {
+            this.Start(_isAndroid);
+        }
+
+        private void ConnectionFailed()
+        {
+            this.Start(_isAndroid);
         }
 
         public int State
@@ -161,7 +175,17 @@ namespace Oak.Droid.Bluetooth
                         {
                             if ((this.State == BluetoothState.STATE_LISTEN) || (this.State == BluetoothState.STATE_CONNECTING))
                             {
-
+ //                               this.Connected(socket, socket.RemoteDevice);
+                            }
+                            else if ((this.State == BluetoothState.STATE_CONNECTED) || (this.State == BluetoothState.STATE_NONE))
+                            {
+                                try
+                                {
+                                    socket.Close();
+                                }
+                                catch (IOException)
+                                {
+                                }
                             }
                         }
                 }
@@ -174,8 +198,11 @@ namespace Oak.Droid.Bluetooth
             try
             {
                 _isAcceptRunning = false;
-                _acceptServerSocket.Close();
-                _acceptServerSocket = null;
+                if (_acceptServerSocket != null)
+                {
+                    _acceptServerSocket.Close();
+                    _acceptServerSocket = null;
+                }
             }
             catch (IOException)
             {
@@ -186,6 +213,38 @@ namespace Oak.Droid.Bluetooth
         #region ConnectThread
         private void RunConnect()
         {
+            Task.Run(() => {
+                BluetoothSocket socket = null;
+                try
+                {
+                    var uuid = (_isAndroid ? UUID_ANDROID_DEVICE : UUID_OTHER_DEVICE);
+                    socket = _socket.RemoteDevice.CreateRfcommSocketToServiceRecord(uuid);
+                }
+                catch
+                {
+                }
+
+                _adapter.CancelDiscovery();
+
+                try
+                {
+                    socket.Connect();
+                }
+                catch
+                {
+                    try
+                    {
+                        socket.Close();
+                    }
+                    catch
+                    {
+                        this.ConnectionFailed();
+                    }
+                }
+
+                _socket = socket;
+                this.Connected();
+            });
         }
 
         private void CancelConnect()
@@ -194,18 +253,40 @@ namespace Oak.Droid.Bluetooth
         #endregion
 
         #region ConnectedThread
-        private void RunConnected()
+        private void RunConnected(BluetoothSocket socket)
         {
+            try
+            {
+                _inputStream = socket.InputStream;
+                _outputStream = socket.OutputStream;
+            }
+            catch (IOException)
+            {
+            }
+
+            Task.Run(() => {
+                while (true)
+                {
+                    try
+                    {
+                        var buffer = new byte[DATA_BYTES];
+                        _inputStream.Read(buffer, 0, DATA_BYTES);
+
+                        _handler.ObtainMessage(BluetoothState.MESSAGE_READ, buffer.Length, -1, buffer);
+                    }
+                    catch 
+                    {
+                        this.ConnectionLost();
+                        break;
+                    }
+                }
+            });
         }
 
         private void CancelConnected()
         {
         }
-
-        private void KillConnected()
-        {
-        }
-        #endregion
+       #endregion
     }
     #endregion
 }
