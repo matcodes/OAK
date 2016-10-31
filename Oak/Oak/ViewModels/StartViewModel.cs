@@ -19,6 +19,15 @@ namespace Oak.ViewModels
         {
             _scannerService = DependencyService.Get<IScannerService>();
 
+            try
+            {
+                _scannerService.FindDevice();
+            }
+            catch (Exception exception)
+            {
+                ShowToastMessage.Send(exception.Message);
+            }
+
             this.StartConnectionCommand = new VisualCommand(this.StartConnection);
             this.AlcoholCommand = new VisualCommand(this.Alcohol);
             this.OilCommand = new VisualCommand(this.Oil);

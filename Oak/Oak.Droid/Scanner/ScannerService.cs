@@ -22,17 +22,20 @@ namespace Oak.Droid.Scanner
     public class ScannerService : IScannerService
     {
         #region Static members
-        private static readonly UUID DEVICE_UUID = UUID.FromString("00001101-0000-1000-8000-00805f9b34fb");
-        private static readonly string DEVICE_NAME = "[TV]Samsung LED32";
+        public static readonly string TAG = "ScannerService";
+
+        public static readonly UUID DEVICE_UUID = UUID.FromString("0000110a-0000-1000-8000-00805f9b34fb");
+        public static readonly string DEVICE_NAME = "Oak FS-1";
         #endregion
 
         private readonly BluetoothAdapter _adapter = null;
         private BluetoothDevice _device = null;
-        private BluetoothSocket _socket = null;
+        private BluetoothGatt _bluetoothGatt = null;
 
         private readonly List<BluetoothDevice> _devices = new List<BluetoothDevice>();
 
         private readonly Receiver _receiver = null;
+        private readonly ScannerServiceCallback _scannerServiceCallback = null;
 
         public ScannerService() : base()
         {
@@ -47,20 +50,12 @@ namespace Oak.Droid.Scanner
             filter.AddAction(BluetoothAdapter.ActionDiscoveryFinished);
             Xamarin.Forms.Forms.Context.RegisterReceiver(_receiver, filter);
 
-            if (_adapter.IsDiscovering)
-                _adapter.CancelDiscovery();
-
-            _adapter.StartDiscovery();
+            _scannerServiceCallback = new ScannerServiceCallback(this);
         }
 
         #region IScannerService
-        public async Task<bool> ConnectAsync()
+        public void FindDevice()
         {
-            var bytes = new byte[] { 122, 123, 123, 118, 115 };
-            var str = Encoding.UTF8.GetString(bytes);
-            StringTokenizer st1 = new StringTokenizer(str, ",");
-            var st2 = st1.NextToken();
-
             if (_adapter == null)
                 throw new Exception("No Bluetooth adapter found.");
 
@@ -71,24 +66,47 @@ namespace Oak.Droid.Scanner
                     throw new Exception("Bluetooth adapter is not enabled.");
             }
 
-            await Task.Run(() => { });
+            if (_adapter.IsDiscovering)
+                _adapter.CancelDiscovery();
 
-            _device = _adapter.BondedDevices.FirstOrDefault(d => d.Name == DEVICE_NAME);
-            if (_device == null)
-                throw new Exception("Named device not found.");
+            _adapter.StartDiscovery();
+        }
 
-            _socket = _device.CreateRfcommSocketToServiceRecord(DEVICE_UUID);
-            //_socket = _device.CreateInsecureRfcommSocketToServiceRecord(DEVICE_UUID);
-            await _socket.ConnectAsync();
+        public async Task<bool> ConnectAsync()
+        {
+            var startTime = DateTime.Now;
+
+            var isWait = true;
+
+            while (isWait)
+            {
+                if (_receiver.Device != null)
+                    isWait = false;
+                else {
+                    var timeout = DateTime.Now - startTime;
+                    if (timeout.TotalMilliseconds > this.Timeout)
+                        isWait = false;
+                }
+                Task.Delay(50).Wait();
+            }
+
+            if (_receiver.Device == null)
+                throw new Exception("Scanner not found.");
+
+            _device = _receiver.Device;
+
+            _bluetoothGatt = _device.ConnectGatt(Xamarin.Forms.Forms.Context, false, _scannerServiceCallback);
 
             return true;
         }
+
+        public int Timeout { get; set; } = 10000;
         #endregion
 
         #region Receiver
         public class Receiver : BroadcastReceiver
         {
-            private List<BluetoothDevice> _devices = new List<BluetoothDevice>();
+            private BluetoothDevice _device = null;
 
             public Receiver()
             {
@@ -102,13 +120,55 @@ namespace Oak.Droid.Scanner
                 if (action == BluetoothDevice.ActionFound)
                 {
                     BluetoothDevice device = (BluetoothDevice)intent.GetParcelableExtra(BluetoothDevice.ExtraDevice);
-                    _devices.Add(device);
+                    if (device.Name.Equals(ScannerService.DEVICE_NAME))
+                        _device = device;
                 }
                 else if (action == BluetoothAdapter.ActionDiscoveryFinished)
                 {
                 }
             }
             #endregion
+
+            public BluetoothDevice Device { get; private set; }
+        }
+        #endregion
+
+        #region ScannerServiceCallback
+        public class ScannerServiceCallback : BluetoothGattCallback
+        {
+            private ScannerService _scannerService;
+
+            public ScannerServiceCallback(ScannerService scannerService)
+            {
+                _scannerService = scannerService;
+            }
+
+            public override void OnConnectionStateChange(BluetoothGatt gatt, GattStatus status, ProfileState newState)
+            {
+                if (newState == ProfileState.Connected)
+                {
+                    Android.Util.Log.Info(ScannerService.TAG, "Connected to GATT server.");
+
+                }
+                else if (newState == ProfileState.Disconnected)
+                {
+                    Android.Util.Log.Info(ScannerService.TAG, "Disconnected from GATT server.");
+                }
+            }
+
+            public override void OnServicesDiscovered(BluetoothGatt gatt, GattStatus status)
+            {
+                Android.Util.Log.Warn(ScannerService.TAG, "OnServicesDiscovered received: " + status);
+            }
+
+            public override void OnCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, GattStatus status)
+            {
+                Android.Util.Log.Warn(ScannerService.TAG, "OnCharacteristicRead received: " + status);
+            }
+
+            public override void OnCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
+            {
+            }
         }
         #endregion
     }

@@ -8,7 +8,11 @@ namespace Oak.Services
     #region IScannerService
     public interface IScannerService
     {
+        void FindDevice();
+
         Task<bool> ConnectAsync();
+
+        int Timeout { get; set; }
     }
     #endregion
 }
