@@ -24,13 +24,18 @@ namespace Oak.Droid.Scanner
         #region Static members
         public static readonly string TAG = "ScannerService";
 
-        public static readonly UUID DEVICE_UUID = UUID.FromString("0000110a-0000-1000-8000-00805f9b34fb");
+        public static readonly UUID SERVICE_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151510");
+        public static readonly UUID COMMAND_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151512");
+        public static readonly UUID DATA_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151513");
         public static readonly string DEVICE_NAME = "Oak FS-1";
         #endregion
 
         private readonly BluetoothAdapter _adapter = null;
         private BluetoothDevice _device = null;
         private BluetoothGatt _bluetoothGatt = null;
+        private BluetoothGattService _bluetoothService = null;
+        private BluetoothGattCharacteristic _bluetoothCommand = null;
+        private BluetoothGattCharacteristic _bluetoothData = null;
 
         private readonly List<BluetoothDevice> _devices = new List<BluetoothDevice>();
 
@@ -115,6 +120,30 @@ namespace Oak.Droid.Scanner
             return this.IsConnected;
         }
 
+        public string Scan()
+        {
+            if (!this.IsConnected)
+                throw new Exception("Scanner connection failed.");
+
+            _bluetoothService = _bluetoothGatt.GetService(SERVICE_UUID);
+            if (_bluetoothService == null)
+                throw new Exception("Service of Scannner not found.");
+
+            _bluetoothCommand = _bluetoothService.GetCharacteristic(COMMAND_UUID);
+            if (_bluetoothCommand == null)
+                throw new Exception("Command characteristic not found.");
+
+            _bluetoothData = _bluetoothService.GetCharacteristic(DATA_UUID);
+            if (_bluetoothData == null)
+                throw new Exception("Data characteristic not found.");
+
+            _bluetoothData.SetValue("pb");
+            if (!_bluetoothGatt.WriteCharacteristic(_bluetoothCommand))
+                throw new Exception("Failed to write Command (Push Button).");
+
+            return "";
+        }
+
         public int Timeout { get; set; } = 10000;
 
         public bool IsConnected { get; set; } = false;
@@ -135,7 +164,7 @@ namespace Oak.Droid.Scanner
                 if (action == BluetoothDevice.ActionFound)
                 {
                     BluetoothDevice device = (BluetoothDevice)intent.GetParcelableExtra(BluetoothDevice.ExtraDevice);
-                    if (device.Name.Equals(ScannerService.DEVICE_NAME))
+                    if ((!String.IsNullOrEmpty(device.Name)) && (device.Name.Equals(ScannerService.DEVICE_NAME)))
                         this.Device = device;
                 }
                 else if (action == BluetoothAdapter.ActionDiscoveryFinished)

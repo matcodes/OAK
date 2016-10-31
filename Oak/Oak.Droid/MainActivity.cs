@@ -39,14 +39,33 @@ namespace Oak.Droid
         {
             base.OnResume();
 
-            CloseAppMessage.Subscribe(this, this.CloseApp);
+            this.SubscribeMessages();
         }
 
         protected override void OnPause()
         {
             base.OnPause();
 
+            this.UnsubscribeMessages();
+        }
+
+        private void SubscribeMessages()
+        {
+            ShowToastMessage.Subscribe(this, this.ShowToast);
+            CloseAppMessage.Subscribe(this, this.CloseApp);
+        }
+
+        private void UnsubscribeMessages()
+        {
+            ShowToastMessage.Unsubscribe(this);
             CloseAppMessage.Unsubscribe(this);
+        }
+
+        private void ShowToast(ShowToastMessage message)
+        {
+            this.RunOnUiThread(() => {
+                Toast.MakeText(this, message.Text, ToastLength.Long).Show();
+            });
         }
 
         private void CloseApp(CloseAppMessage message)

@@ -136,7 +136,22 @@ namespace Oak.ViewModels
 
         private void Scan(object parameter)
         {
-            this.State = StartPageStates.Store;
+            Task.Run(() => {
+                this.IsBusy = true;
+                try
+                {
+                    var result = _scannerService.Scan();
+                    this.State = StartPageStates.Store;
+                }
+                catch (Exception exception)
+                {
+                    ShowToastMessage.Send(exception.Message);
+                }
+                finally
+                {
+                    this.IsBusy = false;
+                }
+            });
         }
 
         private void Store(object parameter)

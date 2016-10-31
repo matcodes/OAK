@@ -12,6 +12,8 @@ namespace Oak.Services
 
         bool Connect();
 
+        string Scan();
+
         int Timeout { get; set; }
     }
     #endregion
