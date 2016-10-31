@@ -22,8 +22,8 @@ namespace Oak.Droid.Scanner
     public class ScannerService : IScannerService
     {
         #region Static members
-        private static readonly UUID DEVICE_UUID = UUID.FromString("00001101-0000-1000-8000-00805f9b34fb");
-        private static readonly string DEVICE_NAME = "[TV]Samsung LED32";
+        public static readonly UUID DEVICE_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151510"); //"00001101 -0000-1000-8000-00805f9b34fb");
+        public static readonly string DEVICE_NAME = "Oak FS-1";
         #endregion
 
         private readonly BluetoothAdapter _adapter = null;
@@ -71,15 +71,46 @@ namespace Oak.Droid.Scanner
                     throw new Exception("Bluetooth adapter is not enabled.");
             }
 
-            await Task.Run(() => { });
+            while (_receiver.Device == null)
+            {
+                Task.Delay(50).Wait();
+            }
 
-            _device = _adapter.BondedDevices.FirstOrDefault(d => d.Name == DEVICE_NAME);
-            if (_device == null)
-                throw new Exception("Named device not found.");
+            _adapter.CancelDiscovery();
 
-            _socket = _device.CreateRfcommSocketToServiceRecord(DEVICE_UUID);
-            //_socket = _device.CreateInsecureRfcommSocketToServiceRecord(DEVICE_UUID);
-            await _socket.ConnectAsync();
+            _device = _receiver.Device; //  _adapter.GetRemoteDevice(_receiver.Device.Address);
+
+            var uuids = _device.GetUuids();
+            if (uuids != null)
+            {
+                for (int j = 0; j < uuids.Length; j++)
+                {
+                    Console.WriteLine("{0} == {1}", uuids[j], DEVICE_UUID);
+                    if (DEVICE_UUID.Equals(uuids[j]))
+                    {
+                        Console.WriteLine(uuids[j]);
+                    }
+                }
+            }
+
+            try
+            {
+                _socket = _device.CreateRfcommSocketToServiceRecord(DEVICE_UUID);
+                //_socket = _device.CreateInsecureRfcommSocketToServiceRecord(DEVICE_UUID);
+                await _socket.ConnectAsync();
+            }
+            catch
+            {
+                try
+                {
+                    _socket.Close();
+                }
+                catch
+                {
+                    throw;
+                }
+                throw;
+            }
 
             return true;
         }
@@ -103,12 +134,22 @@ namespace Oak.Droid.Scanner
                 {
                     BluetoothDevice device = (BluetoothDevice)intent.GetParcelableExtra(BluetoothDevice.ExtraDevice);
                     _devices.Add(device);
+
+                    if (device.Name == ScannerService.DEVICE_NAME)
+                        this.Device = device;
                 }
                 else if (action == BluetoothAdapter.ActionDiscoveryFinished)
                 {
+                    if (this.Device != null)
+                    {
+                        var res = this.Device.FetchUuidsWithSdp();
+                        Console.WriteLine("FetchUuidsWithSdp^ {0}", res);
+                    }
                 }
             }
             #endregion
+
+            public BluetoothDevice Device { get; private set; }
         }
         #endregion
     }
