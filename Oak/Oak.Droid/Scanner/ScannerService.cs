@@ -25,17 +25,14 @@ namespace Oak.Droid.Scanner
         public static readonly string TAG = "ScannerService";
 
         public static readonly UUID SERVICE_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151510");
-        public static readonly UUID COMMAND_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151512");
-        public static readonly UUID DATA_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151513");
+        public static readonly UUID COMMAND_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151513");
+        public static readonly UUID DATA_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151512");
         public static readonly string DEVICE_NAME = "Oak FS-1";
         #endregion
 
         private readonly BluetoothAdapter _adapter = null;
         private BluetoothDevice _device = null;
         private BluetoothGatt _bluetoothGatt = null;
-        private BluetoothGattService _bluetoothService = null;
-        private BluetoothGattCharacteristic _bluetoothCommand = null;
-        private BluetoothGattCharacteristic _bluetoothData = null;
 
         private readonly List<BluetoothDevice> _devices = new List<BluetoothDevice>();
 
@@ -56,6 +53,52 @@ namespace Oak.Droid.Scanner
             Xamarin.Forms.Forms.Context.RegisterReceiver(_receiver, filter);
 
             _scannerServiceCallback = new ScannerServiceCallback(this);
+        }
+
+        public void DiscoverServices()
+        {
+            _bluetoothGatt.DiscoverServices();
+        }
+
+        public void ReadData()
+        {
+            var bluetoothService = _bluetoothGatt.GetService(SERVICE_UUID);
+            if (bluetoothService == null)
+            {
+                this.ReadDataErrorMessage = "Service of Scannner not found.";
+                return;
+            }
+
+            var bluetoothData = bluetoothService.GetCharacteristic(DATA_UUID);
+            if (bluetoothData == null)
+            {
+                this.ReadDataErrorMessage = "Data characteristic not found.";
+                return;
+            }
+
+            if (!_bluetoothGatt.ReadCharacteristic(bluetoothData))
+                this.ReadDataErrorMessage = "Failed to read Data.";
+        }
+
+        public void AddData(byte[] data)
+        {
+            var scannerData = new ScannerData {
+                X = BitConverter.ToUInt32(data, 0),
+                Y = BitConverter.ToUInt32(data, 4),
+                N = BitConverter.ToUInt16(data, 8),
+            };
+            this.Data.Add(scannerData);
+
+            scannerData = new ScannerData {
+                X = BitConverter.ToUInt32(data, 10),
+                Y = BitConverter.ToUInt32(data, 14),
+                N = BitConverter.ToUInt16(data, 18)
+            };
+            this.Data.Add(scannerData);
+
+            this.PackageCount++;
+
+            this.ReadData();
         }
 
         #region IScannerService
@@ -120,31 +163,58 @@ namespace Oak.Droid.Scanner
             return this.IsConnected;
         }
 
-        public string Scan()
+        public ScannerData[] Scan()
         {
+            //var startTime = DateTime.Now;
+
+            this.Data.Clear();
+            this.PackageCount = 0;
+            this.ReadDataErrorMessage = "";
+
             if (!this.IsConnected)
                 throw new Exception("Scanner connection failed.");
 
-            _bluetoothService = _bluetoothGatt.GetService(SERVICE_UUID);
-            if (_bluetoothService == null)
+            var bluetoothService = _bluetoothGatt.GetService(SERVICE_UUID);
+            if (bluetoothService == null)
                 throw new Exception("Service of Scannner not found.");
 
-            _bluetoothCommand = _bluetoothService.GetCharacteristic(COMMAND_UUID);
-            if (_bluetoothCommand == null)
+            var bluetoothCommand = bluetoothService.GetCharacteristic(COMMAND_UUID);
+            if (bluetoothCommand == null)
                 throw new Exception("Command characteristic not found.");
 
-            _bluetoothData = _bluetoothService.GetCharacteristic(DATA_UUID);
-            if (_bluetoothData == null)
-                throw new Exception("Data characteristic not found.");
-
-            _bluetoothData.SetValue("pb");
-            if (!_bluetoothGatt.WriteCharacteristic(_bluetoothCommand))
+            bluetoothCommand.SetValue("pb");
+            if (!_bluetoothGatt.WriteCharacteristic(bluetoothCommand))
                 throw new Exception("Failed to write Command (Push Button).");
 
-            return "";
+            var isWait = true;
+            while (isWait)
+            {
+                if (this.PackageCount >= 1024)
+                    isWait = false;
+
+                else
+                {
+                    if (!String.IsNullOrEmpty(this.ReadDataErrorMessage))
+                        throw new Exception(this.ReadDataErrorMessage);
+
+                    //var timeout = (DateTime.Now - startTime);
+                    //if (timeout.TotalMilliseconds > this.Timeout)
+                    //    throw new Exception("Read data timeout.");
+
+                    Task.Delay(50).Wait();
+                }
+            }
+
+            return this.Data.ToArray();
         }
 
-        public int Timeout { get; set; } = 10000;
+        public int Timeout { get; set; } = 30000;
+
+        public int PackageCount { get; set; } = 0;
+
+        public List<ScannerData> Data { get; set; } = new List<ScannerData>();
+
+        public string ReadDataErrorMessage = "";
 
         public bool IsConnected { get; set; } = false;
         #endregion
@@ -193,6 +263,7 @@ namespace Oak.Droid.Scanner
                 {
                     Android.Util.Log.Info(ScannerService.TAG, "Connected to GATT server.");
                     _scannerService.IsConnected = true;
+                    _scannerService.DiscoverServices();
 
                 }
                 else if (newState == ProfileState.Disconnected)
@@ -208,7 +279,25 @@ namespace Oak.Droid.Scanner
 
             public override void OnCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, GattStatus status)
             {
+                if (status == GattStatus.Success)
+                {
+                    var data = characteristic.GetValue();
+                    _scannerService.AddData(data);
+                }
+                else
+                    _scannerService.ReadDataErrorMessage = "Failed to read Data.";
+
                 Android.Util.Log.Warn(ScannerService.TAG, "OnCharacteristicRead received: " + status);
+            }
+
+            public override void OnCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, [GeneratedEnum] GattStatus status)
+            {
+                if (status == GattStatus.Success)
+                    _scannerService.ReadData();
+                else
+                    _scannerService.ReadDataErrorMessage = "Failed to write Data.";
+
+                base.OnCharacteristicWrite(gatt, characteristic, status);
             }
 
             public override void OnCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)

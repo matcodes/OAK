@@ -12,7 +12,7 @@ namespace Oak.Services
 
         bool Connect();
 
-        string Scan();
+        ScannerData[] Scan();
 
         int Timeout { get; set; }
     }
