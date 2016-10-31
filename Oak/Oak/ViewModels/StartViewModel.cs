@@ -81,18 +81,18 @@ namespace Oak.ViewModels
 
         private void StartConnection(object parameter)
         {
-            Task.Run(async () => {
+            Task.Run(() => {
                 try
                 {
                     this.State = StartPageStates.Connecting;
-                    var result = await _scannerService.ConnectAsync();
-                    Task.Delay(5000).Wait();
+                    var result = _scannerService.Connect();
                     this.State = StartPageStates.Connected;
                 }
                 catch (Exception exception)
                 {
                     Console.WriteLine(exception.Message);
-//                    ShowToastMessage.Send(exception.Message);
+                    ShowToastMessage.Send(exception.Message);
+                    this.State = StartPageStates.WaitConnection;
                 }
                 finally
                 {

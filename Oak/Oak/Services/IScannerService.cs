@@ -10,7 +10,7 @@ namespace Oak.Services
     {
         void FindDevice();
 
-        Task<bool> ConnectAsync();
+        bool Connect();
 
         int Timeout { get; set; }
     }

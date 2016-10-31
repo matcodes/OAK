@@ -72,8 +72,10 @@ namespace Oak.Droid.Scanner
             _adapter.StartDiscovery();
         }
 
-        public async Task<bool> ConnectAsync()
+        public bool Connect()
         {
+            this.IsConnected = false;
+
             var startTime = DateTime.Now;
 
             var isWait = true;
@@ -97,10 +99,25 @@ namespace Oak.Droid.Scanner
 
             _bluetoothGatt = _device.ConnectGatt(Xamarin.Forms.Forms.Context, false, _scannerServiceCallback);
 
-            return true;
+            isWait = true;
+            while (isWait)
+            {
+                isWait = !this.IsConnected;
+                if (isWait)
+                {
+                    var timeout = DateTime.Now - startTime;
+                    if (timeout.TotalMilliseconds > this.Timeout)
+                        throw new Exception("Scanner connection timeout.");
+                    Task.Delay(50).Wait();
+                }
+            }
+
+            return this.IsConnected;
         }
 
         public int Timeout { get; set; } = 10000;
+
+        public bool IsConnected { get; set; } = false;
         #endregion
 
         #region Receiver
@@ -146,6 +163,7 @@ namespace Oak.Droid.Scanner
                 if (newState == ProfileState.Connected)
                 {
                     Android.Util.Log.Info(ScannerService.TAG, "Connected to GATT server.");
+                    _scannerService.IsConnected = true;
 
                 }
                 else if (newState == ProfileState.Disconnected)
