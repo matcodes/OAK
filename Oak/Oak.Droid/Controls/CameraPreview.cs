@@ -175,6 +175,7 @@ namespace Oak.Droid.Controls
             var fileService = DependencyService.Get<IFileService>();
 
             var fileName = "photo_" + DateTime.Now.ToString() + ".jpg";
+            fileName = fileName.Replace("/", "_");
 
             fileName = Path.Combine(fileService.AppWorkPath, fileName);
 
