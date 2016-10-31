@@ -25,6 +25,7 @@ namespace Oak.Droid.Scanner
         public static readonly string TAG = "ScannerService";
 
         public static readonly UUID DEVICE_UUID = UUID.FromString("0000110a-0000-1000-8000-00805f9b34fb");
+        public static readonly UUID DEVICE_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151510"); //"00001101 -0000-1000-8000-00805f9b34fb");
         public static readonly string DEVICE_NAME = "Oak FS-1";
         #endregion
 
@@ -121,7 +122,7 @@ namespace Oak.Droid.Scanner
                 {
                     BluetoothDevice device = (BluetoothDevice)intent.GetParcelableExtra(BluetoothDevice.ExtraDevice);
                     if (device.Name.Equals(ScannerService.DEVICE_NAME))
-                        _device = device;
+                        this.Device = device;
                 }
                 else if (action == BluetoothAdapter.ActionDiscoveryFinished)
                 {
