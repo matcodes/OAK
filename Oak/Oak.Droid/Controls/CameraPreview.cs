@@ -10,11 +10,15 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.Hardware;
+using static Android.Hardware.Camera;
+using Xamarin.Forms;
+using Oak.Services;
+using System.IO;
 
 namespace Oak.Droid.Controls
 {
     #region CameraPreview
-    public sealed class CameraPreview : ViewGroup, ISurfaceHolderCallback
+    public sealed class CameraPreview : ViewGroup, ISurfaceHolderCallback, IPictureCallback
     {
         private SurfaceView _surfaceView;
         private ISurfaceHolder _holder;
@@ -50,6 +54,12 @@ namespace Oak.Droid.Controls
             IsPreviewing = false;
             _holder = _surfaceView.Holder;
             _holder.AddCallback(this);
+        }
+
+        public void TakePicture()
+        {
+            if (this.Preview != null)
+                this.Preview.TakePicture(null, null, this);
         }
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -158,6 +168,19 @@ namespace Oak.Droid.Controls
 
             return optimalSize;
         }
+
+        #region OnPictureTaken
+        public void OnPictureTaken(byte[] data, Camera camera)
+        {
+            var fileService = DependencyService.Get<IFileService>();
+
+            var fileName = "photo_" + DateTime.Now.ToString() + ".jpg";
+
+            fileName = Path.Combine(fileService.AppWorkPath, fileName);
+
+            File.WriteAllBytes(fileName, data);
+        }
+        #endregion
     }
     #endregion
 }

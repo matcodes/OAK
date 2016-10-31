@@ -11,6 +11,7 @@ namespace Oak.Controls
     {
         #region Static members
         public static readonly BindableProperty CameraProperty = BindableProperty.Create("Camera", typeof(CameraOptions), typeof(AppCameraPreview), CameraOptions.Rear);
+        public static readonly BindableProperty TakePhotoProperty = BindableProperty.Create("TakePhoto", typeof(bool), typeof(AppCameraPreview), false);
         #endregion
 
         public AppCameraPreview() : base()
@@ -21,6 +22,12 @@ namespace Oak.Controls
         {
             get { return (CameraOptions)GetValue(CameraProperty); }
             set { SetValue(CameraProperty, value); }
+        }
+
+        public bool TakePhoto
+        {
+            get { return (bool)this.GetValue(TakePhotoProperty); }
+            set { this.SetValue(TakePhotoProperty, value); }
         }
     }
     #endregion

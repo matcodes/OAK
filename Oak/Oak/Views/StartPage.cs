@@ -52,6 +52,8 @@ namespace Oak.Views
         private StartPageStates _oldState = StartPageStates.Starting;
 
         private ReverseBoolConverter _reverseBoolConverter = new ReverseBoolConverter();
+        private ProgramBoolToColorConverter _colorConverter = new ProgramBoolToColorConverter();
+
 
         public StartPage() : base()
         {
@@ -952,6 +954,7 @@ namespace Oak.Views
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill
             };
+            camera.SetBinding(AppCameraPreview.TakePhotoProperty, "IsTakePhoto", BindingMode.TwoWay);
 
             var cameraContent = new ContentView {
                 HorizontalOptions = LayoutOptions.Fill,
@@ -1217,70 +1220,70 @@ namespace Oak.Views
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "1"
             };
             program1.SetBinding(AppButton.CommandProperty, "Program1Command");
+            program1.SetBinding(AppButton.TextColorProperty, new Binding("Program1Exist", BindingMode.OneWay, _colorConverter));
 
             var program2 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "2"
             };
             program2.SetBinding(AppButton.CommandProperty, "Program2Command");
+            program2.SetBinding(AppButton.TextColorProperty, new Binding("Program2Exist", BindingMode.OneWay, _colorConverter));
 
             var program3 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "3"
             };
             program3.SetBinding(AppButton.CommandProperty, "Program3Command");
+            program3.SetBinding(AppButton.TextColorProperty, new Binding("Program3Exist", BindingMode.OneWay, _colorConverter));
 
             var program4 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "4"
             };
             program4.SetBinding(AppButton.CommandProperty, "Program4Command");
+            program4.SetBinding(AppButton.TextColorProperty, new Binding("Program4Exist", BindingMode.OneWay, _colorConverter));
 
             var program5 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "5"
             };
             program5.SetBinding(AppButton.CommandProperty, "Program5Command");
+            program5.SetBinding(AppButton.TextColorProperty, new Binding("Program5Exist", BindingMode.OneWay, _colorConverter));
 
             var program6 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "6"
             };
             program6.SetBinding(AppButton.CommandProperty, "Program6Command");
+            program6.SetBinding(AppButton.TextColorProperty, new Binding("Program6Exist", BindingMode.OneWay, _colorConverter));
 
             var program7 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "7"
             };
             program7.SetBinding(AppButton.CommandProperty, "Program7Command");
+            program7.SetBinding(AppButton.TextColorProperty, new Binding("Program7Exist", BindingMode.OneWay, _colorConverter));
 
             var program8 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
@@ -1291,6 +1294,7 @@ namespace Oak.Views
                 Text = "8"
             };
             program8.SetBinding(AppButton.CommandProperty, "Program8Command");
+            program8.SetBinding(AppButton.TextColorProperty, new Binding("Program8Exist", BindingMode.OneWay, _colorConverter));
 
             var programsContent = new Grid {
                 HorizontalOptions = LayoutOptions.Fill,
@@ -1497,80 +1501,80 @@ namespace Oak.Views
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "1"
             };
             program1.SetBinding(AppButton.CommandProperty, "Program1Command");
+            program1.SetBinding(AppButton.TextColorProperty, new Binding("Program1Exist", BindingMode.OneWay, _colorConverter));
 
             var program2 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "2"
             };
             program2.SetBinding(AppButton.CommandProperty, "Program2Command");
+            program2.SetBinding(AppButton.TextColorProperty, new Binding("Program2Exist", BindingMode.OneWay, _colorConverter));
 
             var program3 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "3"
             };
             program3.SetBinding(AppButton.CommandProperty, "Program3Command");
+            program3.SetBinding(AppButton.TextColorProperty, new Binding("Program3Exist", BindingMode.OneWay, _colorConverter));
 
             var program4 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "4"
             };
             program4.SetBinding(AppButton.CommandProperty, "Program4Command");
+            program4.SetBinding(AppButton.TextColorProperty, new Binding("Program4Exist", BindingMode.OneWay, _colorConverter));
 
             var program5 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "5"
             };
             program5.SetBinding(AppButton.CommandProperty, "Program5Command");
+            program5.SetBinding(AppButton.TextColorProperty, new Binding("Program5Exist", BindingMode.OneWay, _colorConverter));
 
             var program6 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "6"
             };
             program6.SetBinding(AppButton.CommandProperty, "Program6Command");
+            program6.SetBinding(AppButton.TextColorProperty, new Binding("Program6Exist", BindingMode.OneWay, _colorConverter));
 
             var program7 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "7"
             };
             program7.SetBinding(AppButton.CommandProperty, "Program7Command");
+            program7.SetBinding(AppButton.TextColorProperty, new Binding("Program7Exist", BindingMode.OneWay, _colorConverter));
 
             var program8 = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
                 AppFont = AppFonts.MontserratRegular,
                 FontSize = Device.GetNamedSize(NamedSize.Medium, typeof(Label)),
-                TextColor = BUTTON_TEXT_COLOR,
                 Text = "8"
             };
             program8.SetBinding(AppButton.CommandProperty, "Program8Command");
+            program8.SetBinding(AppButton.TextColorProperty, new Binding("Program1Exist", BindingMode.OneWay, _colorConverter));
 
             var check = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,

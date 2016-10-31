@@ -15,6 +15,7 @@ using Xamarin.Forms.Platform.Android;
 using Android.Hardware;
 using Xamarin.Forms;
 using Oak.Droid.Renderers;
+using System.ComponentModel;
 
 [assembly: ExportRenderer(typeof(AppCameraPreview), typeof(AppCameraPreviewRenderer))]
 namespace Oak.Droid.Renderers
@@ -43,6 +44,19 @@ namespace Oak.Droid.Renderers
                 Control.Preview = Camera.Open((int)args.NewElement.Camera);
 
                 _cameraPreview.Click += OnCameraPreviewClicked;
+            }
+        }
+
+        protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs args)
+        {
+            base.OnElementPropertyChanged(sender, args);
+
+            var cameraPreview = (this.Element as AppCameraPreview);
+
+            if ((args.PropertyName == AppCameraPreview.TakePhotoProperty.PropertyName) && (cameraPreview.TakePhoto))
+            {
+                this.Control.TakePicture();
+                cameraPreview.TakePhoto = false;
             }
         }
 

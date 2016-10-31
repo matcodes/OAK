@@ -12,11 +12,11 @@ using Android.Widget;
 using Oak.Services;
 using Android.Bluetooth;
 using Java.Util;
-using Oak.Droid.Scanner;
+using Oak.Droid.Services;
 using Xamarin.Forms;
 
 [assembly: Dependency(typeof(ScannerService))]
-namespace Oak.Droid.Scanner
+namespace Oak.Droid.Services
 {
     #region ScannerService
     public class ScannerService : IScannerService

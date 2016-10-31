@@ -4,6 +4,7 @@ using Oak.Classes.Messages;
 using Oak.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
@@ -13,11 +14,23 @@ namespace Oak.ViewModels
     #region StartViewModel
     public class StartViewModel : OakViewModel
     {
+        #region Static members
+        public static readonly string ALCOHOL_TAG = "ALCOHOL";
+        public static readonly string OIL_TAG = "OIL";
+        public static readonly string MILK_TAG = "MILK";
+        public static readonly string WATER_TAG = "WATER";
+        #endregion
+
         private readonly IScannerService _scannerService = null;
+        private readonly IFileService _fileService = null;
+
+        private string _currentProduct = "";
+        private ScannerData[] _currentData = new ScannerData[] { };
 
         public StartViewModel() : base()
         {
             _scannerService = DependencyService.Get<IScannerService>();
+            _fileService = DependencyService.Get<IFileService>();
 
             try
             {
@@ -74,9 +87,64 @@ namespace Oak.ViewModels
             if (propertyName == "State")
             {
                 this.StartConnectionCommand.IsEnabled = (this.State == StartPageStates.WaitConnection);
+
+                if ((this.State == StartPageStates.Programs) ||
+                    (this.State == StartPageStates.Check))
+                    this.SetProgramsParams();
             }
 
             base.DoPropertyChanged(propertyName);
+        }
+
+        private string GetFileName(int index)
+        {
+            var product = "";
+            if (this.ProductCategory == ProductCategories.Alcohol)
+                product = ALCOHOL_TAG;
+            else if (this.ProductCategory == ProductCategories.Milk)
+                product = MILK_TAG;
+            else if (this.ProductCategory == ProductCategories.Oil)
+                product = OIL_TAG;
+            else if (this.ProductCategory == ProductCategories.Water)
+                product = WATER_TAG;
+
+            var path = _fileService.AppWorkPath;
+            var name = String.Format("oak_data_{0}_{1}.csv", product, index);
+
+            return Path.Combine(path, name);
+        }
+
+        private void SaveDataToCsv(int index)
+        {
+            var fileName = this.GetFileName(index);
+
+            var text = String.Format("\"X\",\"Y\",\"N\"");
+            foreach (var scannerData in _currentData)
+            {
+                text += Environment.NewLine;
+                text += String.Format("\"{0}\",\"{1}\",\"{2}\"", scannerData.X, scannerData.Y, scannerData.N);
+            }
+
+            File.WriteAllText(fileName, text);
+
+            this.SetProgramsParams();
+        }
+
+        private bool FileExist(int index)
+        {
+            return File.Exists(this.GetFileName(index));
+        }
+
+        private void SetProgramsParams()
+        {
+            this.Program1Exist = this.FileExist(1);
+            this.Program2Exist = this.FileExist(2);
+            this.Program3Exist = this.FileExist(3);
+            this.Program4Exist = this.FileExist(4);
+            this.Program5Exist = this.FileExist(5);
+            this.Program6Exist = this.FileExist(6);
+            this.Program7Exist = this.FileExist(7);
+            this.Program8Exist = this.FileExist(8);
         }
 
         private void StartConnection(object parameter)
@@ -86,6 +154,7 @@ namespace Oak.ViewModels
                 {
                     this.State = StartPageStates.Connecting;
                     var result = _scannerService.Connect();
+                    //Task.Delay(2000).Wait();
                     this.State = StartPageStates.Connected;
                 }
                 catch (Exception exception)
@@ -131,7 +200,10 @@ namespace Oak.ViewModels
             if (this.State == StartPageStates.CameraHelp)
                 this.State = StartPageStates.Camera;
             else if (State == StartPageStates.Camera)
+            {
+                this.IsTakePhoto = true;
                 this.State = StartPageStates.Scan;
+            }
         }
 
         private void Scan(object parameter)
@@ -141,6 +213,18 @@ namespace Oak.ViewModels
                 try
                 {
                     var result = _scannerService.Scan();
+                    //var result = new ScannerData[] {
+                    //    new ScannerData { X = 1, Y = 1, N = 1 },
+                    //    new ScannerData { X = 2, Y = 2, N = 2 },
+                    //    new ScannerData { X = 3, Y = 3, N = 3 },
+                    //    new ScannerData { X = 4, Y = 4, N = 4 },
+                    //    new ScannerData { X = 5, Y = 5, N = 5 },
+                    //    new ScannerData { X = 6, Y = 6, N = 6 },
+                    //    new ScannerData { X = 7, Y = 7, N = 7 },
+                    //    new ScannerData { X = 8, Y = 8, N = 8 },
+                    //    new ScannerData { X = 9, Y = 9, N = 9 }
+                    //};
+                    _currentData = result;
                     this.State = StartPageStates.Store;
                 }
                 catch (Exception exception)
@@ -176,41 +260,65 @@ namespace Oak.ViewModels
 
         private void Program1(object parameter)
         {
+            if (this.State == StartPageStates.Programs)
+                this.SaveDataToCsv(1);
+
             this.State = StartPageStates.Rescan;
         }
 
         private void Program2(object parameter)
         {
+            if (this.State == StartPageStates.Programs)
+                this.SaveDataToCsv(2);
+
             this.State = StartPageStates.Rescan;
         }
 
         private void Program3(object parameter)
         {
+            if (this.State == StartPageStates.Programs)
+                this.SaveDataToCsv(3);
+
             this.State = StartPageStates.Rescan;
         }
 
         private void Program4(object parameter)
         {
+            if (this.State == StartPageStates.Programs)
+                this.SaveDataToCsv(4);
+
             this.State = StartPageStates.Rescan;
         }
 
         private void Program5(object parameter)
         {
+            if (this.State == StartPageStates.Programs)
+                this.SaveDataToCsv(5);
+
             this.State = StartPageStates.Rescan;
         }
 
         private void Program6(object parameter)
         {
+            if (this.State == StartPageStates.Programs)
+                this.SaveDataToCsv(6);
+
             this.State = StartPageStates.Rescan;
         }
 
         private void Program7(object parameter)
         {
+            if (this.State == StartPageStates.Programs)
+                this.SaveDataToCsv(7);
+
             this.State = StartPageStates.Rescan;
         }
 
         private void Program8(object parameter)
         {
+            if (this.State == StartPageStates.Programs)
+                this.SaveDataToCsv(8);
+
             this.State = StartPageStates.Rescan;
         }
 
@@ -247,6 +355,60 @@ namespace Oak.ViewModels
         {
             get { return (ProductCategories)this.GetValue("ProductCategory", ProductCategories.Alcohol); }
             set { this.SetValue("ProductCategory", value); }
+        }
+
+        public bool Program1Exist
+        {
+            get { return (bool)this.GetValue("Program1Exist", false); }
+            set { this.SetValue("Program1Exist", value); }
+        }
+
+        public bool Program2Exist
+        {
+            get { return (bool)this.GetValue("Program2Exist", false); }
+            set { this.SetValue("Program2Exist", value); }
+        }
+
+        public bool Program3Exist
+        {
+            get { return (bool)this.GetValue("Program3Exist", false); }
+            set { this.SetValue("Program3Exist", value); }
+        }
+
+        public bool Program4Exist
+        {
+            get { return (bool)this.GetValue("Program4Exist", false); }
+            set { this.SetValue("Program4Exist", value); }
+        }
+
+        public bool Program5Exist
+        {
+            get { return (bool)this.GetValue("Program5Exist", false); }
+            set { this.SetValue("Program5Exist", value); }
+        }
+
+        public bool Program6Exist
+        {
+            get { return (bool)this.GetValue("Program6Exist", false); }
+            set { this.SetValue("Program6Exist", value); }
+        }
+
+        public bool Program7Exist
+        {
+            get { return (bool)this.GetValue("Program7Exist", false); }
+            set { this.SetValue("Program7Exist", value); }
+        }
+
+        public bool Program8Exist
+        {
+            get { return (bool)this.GetValue("Program8Exist", false); }
+            set { this.SetValue("Program8Exist", value); }
+        }
+
+        public bool IsTakePhoto
+        {
+            get { return (bool)this.GetValue("IsTakePhoto", false); }
+            set { this.SetValue("IsTakePhoto", value); }
         }
 
         public VisualCommand StartConnectionCommand { get; private set; }
