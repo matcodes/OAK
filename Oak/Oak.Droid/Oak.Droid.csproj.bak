@@ -120,7 +120,7 @@
   <ItemGroup>
     <Compile Include="Bluetooth\BluetoothService.cs" />
     <Compile Include="Bluetooth\BluetoothState.cs" />
-    <Compile Include="Classes\OAKCrossCorr.cs" />
+    <Compile Include="Classes\OakCrossCorr.cs" />
     <Compile Include="Controls\CameraPreview.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Renderers\AppActivityIndicatorRenderer.cs" />

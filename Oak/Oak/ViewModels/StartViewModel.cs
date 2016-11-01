@@ -138,9 +138,25 @@ namespace Oak.ViewModels
 
         private void SaveDataToCsv(int index)
         {
-            var fileName = this.GetFileName(index);
+            Task.Run(() => {
+                this.IsBusy = true;
+                try
+                {
+                    var fileName = this.GetFileName(index);
 
-            this.SaveDataToCsv(fileName);
+                    this.SaveDataToCsv(fileName);
+
+                    this.State = StartPageStates.Rescan;
+                }
+                catch (Exception exception)
+                {
+                    ShowToastMessage.Send(exception.Message);
+                }
+                finally
+                {
+                    this.IsBusy = false;
+                }
+            });
         }
 
         private void CheckData(int index)

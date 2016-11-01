@@ -27,7 +27,9 @@ namespace Oak.Droid.Services
         public static readonly UUID SERVICE_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151510");
         public static readonly UUID COMMAND_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151513");
         public static readonly UUID DATA_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151512");
-        public static readonly string DEVICE_NAME = "Oak FS-1";
+        public static readonly string DEVICE_NAME = "Oak1"; //"Oak FS-1";
+
+        public static readonly int PACKAGE_COUNT = 1600;
         #endregion
 
         private readonly BluetoothAdapter _adapter = null;
@@ -82,6 +84,10 @@ namespace Oak.Droid.Services
 
         public void AddData(byte[] data)
         {
+            var x = BitConverter.ToDouble(new byte[] { data[0], data[1], data[2], data[3] }, 0);
+            var y = BitConverter.ToDouble(new byte[] { data[4], data[5], data[6], data[7] }, 0);
+            var n = BitConverter.ToUInt16(new byte[] { data[8], data[9] }, 8);
+
             var scannerData = new ScannerData {
                 X = BitConverter.ToUInt32(data, 0),
                 Y = BitConverter.ToUInt32(data, 4),
@@ -98,7 +104,8 @@ namespace Oak.Droid.Services
 
             this.PackageCount++;
 
-            this.ReadData();
+            if (this.PackageCount < PACKAGE_COUNT)
+                this.ReadData();
         }
 
         #region IScannerService
@@ -189,7 +196,7 @@ namespace Oak.Droid.Services
             var isWait = true;
             while (isWait)
             {
-                if (this.PackageCount >= 1024)
+                if (this.PackageCount >= PACKAGE_COUNT)
                     isWait = false;
 
                 else
