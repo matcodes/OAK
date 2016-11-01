@@ -21,6 +21,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\ProductCategories.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\StartPageStates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Messages\CloseAppMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Messages\SendFileByEmailMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Messages\ShowToastMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\VisualCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppActivityIndicator.cs" />
@@ -29,6 +30,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppTextCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppLabel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IFileService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\IOakCrossCorr.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IScannerService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ScannerData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\OakViewModel.cs" />

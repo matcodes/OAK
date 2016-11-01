@@ -9,11 +9,15 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Oak.Droid.Classes;
+using Xamarin.Forms;
+using Oak.Services;
 
+[assembly: Dependency(typeof(OAKCrossCorr))]
 namespace Oak.Droid.Classes
 {
     #region OAKCrossCorr
-    public class OAKCrossCorr
+    public class OAKCrossCorr : IOakCrossCorr
     {
         // First Derivative Absolute Value
         public double FDAV(double[] sample1, double[] sample2)

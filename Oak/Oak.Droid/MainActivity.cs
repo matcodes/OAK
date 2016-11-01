@@ -1,6 +1,4 @@
-﻿using System;
-
-using Android.App;
+﻿using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.Views;
@@ -8,6 +6,9 @@ using Android.Widget;
 using Android.OS;
 using Android.Graphics;
 using Oak.Classes.Messages;
+using Java.IO;
+using Android.Content;
+using Android.Net;
 
 namespace Oak.Droid
 {
@@ -53,12 +54,14 @@ namespace Oak.Droid
         {
             ShowToastMessage.Subscribe(this, this.ShowToast);
             CloseAppMessage.Subscribe(this, this.CloseApp);
+            SendFileByEmailMessage.Subscribe(this, this.SendFileByEmail);
         }
 
         private void UnsubscribeMessages()
         {
             ShowToastMessage.Unsubscribe(this);
             CloseAppMessage.Unsubscribe(this);
+            SendFileByEmailMessage.Unsubscribe(this);
         }
 
         private void ShowToast(ShowToastMessage message)
@@ -71,6 +74,17 @@ namespace Oak.Droid
         private void CloseApp(CloseAppMessage message)
         {
             this.FinishAffinity();
+        }
+
+        private void SendFileByEmail(SendFileByEmailMessage message)
+        {
+            File file = new File(message.FileName);
+            var path = Uri.FromFile(file);
+            Intent emailIntent = new Intent(Intent.ActionSend);
+            emailIntent.SetType("vnd.android.cursor.dir/email");
+            emailIntent.PutExtra(Intent.ExtraStream, path);
+            emailIntent.PutExtra(Intent.ExtraSubject, "OAK Scan Result");
+            this.StartActivity(Intent.CreateChooser(emailIntent, "Send email..."));
         }
 	}
 }

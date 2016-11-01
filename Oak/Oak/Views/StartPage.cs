@@ -1574,7 +1574,7 @@ namespace Oak.Views
                 Text = "8"
             };
             program8.SetBinding(AppButton.CommandProperty, "Program8Command");
-            program8.SetBinding(AppButton.TextColorProperty, new Binding("Program1Exist", BindingMode.OneWay, _colorConverter));
+            program8.SetBinding(AppButton.TextColorProperty, new Binding("Program8Exist", BindingMode.OneWay, _colorConverter));
 
             var check = new AppButton {
                 HorizontalOptions = LayoutOptions.Fill,

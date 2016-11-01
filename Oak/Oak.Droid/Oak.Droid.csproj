@@ -17,7 +17,7 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
-    <TargetFrameworkVersion>v6.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v7.0</TargetFrameworkVersion>
     <AndroidSupportedAbis>armeabi,armeabi-v7a,x86</AndroidSupportedAbis>
     <AndroidStoreUncompressedFileExtensions />
     <MandroidI18n />
@@ -120,7 +120,7 @@
   <ItemGroup>
     <Compile Include="Bluetooth\BluetoothService.cs" />
     <Compile Include="Bluetooth\BluetoothState.cs" />
-    <Compile Include="Classes\OAKCrossCorr.cs" />
+    <Compile Include="Classes\OakCrossCorr.cs" />
     <Compile Include="Controls\CameraPreview.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Renderers\AppActivityIndicatorRenderer.cs" />

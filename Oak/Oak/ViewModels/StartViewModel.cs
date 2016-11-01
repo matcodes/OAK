@@ -4,6 +4,7 @@ using Oak.Classes.Messages;
 using Oak.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,13 +25,16 @@ namespace Oak.ViewModels
         private readonly IScannerService _scannerService = null;
         private readonly IFileService _fileService = null;
 
-        private string _currentProduct = "";
+        private readonly IOakCrossCorr _oakCrossCorr = null;
+
         private ScannerData[] _currentData = new ScannerData[] { };
 
         public StartViewModel() : base()
         {
             _scannerService = DependencyService.Get<IScannerService>();
             _fileService = DependencyService.Get<IFileService>();
+
+            _oakCrossCorr = DependencyService.Get<IOakCrossCorr>();
 
             try
             {
@@ -114,10 +118,65 @@ namespace Oak.ViewModels
             return Path.Combine(path, name);
         }
 
+        private string GetFileName()
+        {
+            var product = "";
+            if (this.ProductCategory == ProductCategories.Alcohol)
+                product = ALCOHOL_TAG;
+            else if (this.ProductCategory == ProductCategories.Milk)
+                product = MILK_TAG;
+            else if (this.ProductCategory == ProductCategories.Oil)
+                product = OIL_TAG;
+            else if (this.ProductCategory == ProductCategories.Water)
+                product = WATER_TAG;
+
+            var path = _fileService.AppWorkPath;
+            var name = String.Format("oak_data_{0}_{1}.csv", product, DateTime.Now.ToString().Replace("/", "_"));
+
+            return Path.Combine(path, name);
+        }
+
         private void SaveDataToCsv(int index)
         {
             var fileName = this.GetFileName(index);
 
+            this.SaveDataToCsv(fileName);
+        }
+
+        private void CheckData(int index)
+        {
+            Task.Run(() => {
+                this.IsBusy = true;
+                try
+                {
+                    var storeData = this.ReadDataFromCsv(index);
+
+                    var currentSample = _currentData.Select(sd => (double)sd.Y).ToArray();
+                    var storeSample = storeData.Select(sd => (double)sd.Y).ToArray();
+
+                    var adv = _oakCrossCorr.ADV(currentSample, storeSample);
+                    var fdav = _oakCrossCorr.FDAV(currentSample, storeSample);
+                    var fdls = _oakCrossCorr.FDLS(currentSample, storeSample);
+                    //var idiff = _oakCrossCorr.IDIFF(currentSample, storeSample);
+                    var iis = _oakCrossCorr.IS(currentSample, storeSample);
+                    var ls = _oakCrossCorr.LS(currentSample, storeSample);
+                    var savg = _oakCrossCorr.SAVG(currentSample, storeSample);
+
+                    this.State = StartPageStates.Rescan;
+                }
+                catch (Exception exception)
+                {
+                    ShowToastMessage.Send(exception.Message);
+                }
+                finally
+                {
+                    this.IsBusy = false;
+                }
+            });
+        }
+
+        private void SaveDataToCsv(string fileName)
+        {
             var text = String.Format("\"X\",\"Y\",\"N\"");
             foreach (var scannerData in _currentData)
             {
@@ -128,6 +187,33 @@ namespace Oak.ViewModels
             File.WriteAllText(fileName, text);
 
             this.SetProgramsParams();
+        }
+
+        private ScannerData[] ReadDataFromCsv(int index)
+        {
+            var fileName = this.GetFileName(index);
+            if (!File.Exists(fileName))
+                throw new Exception(String.Format("Data slot # {0} is empty.", index));
+
+            var scannerDatas = new List<ScannerData>();
+
+            var lines = File.ReadAllLines(fileName);
+            var firstLine = true;
+            foreach (var line in lines)
+            {
+                if (!firstLine)
+                {
+                    var values = line.Split(',');
+                    var x = UInt32.Parse(values[0].Replace("\"", ""));
+                    var y = UInt32.Parse(values[1].Replace("\"", ""));
+                    var n = UInt16.Parse(values[2].Replace("\"", ""));
+                    scannerDatas.Add(new ScannerData { X = x, Y = y, N = n });
+                }
+                else
+                    firstLine = false;
+            }
+
+            return scannerDatas.ToArray();
         }
 
         private bool FileExist(int index)
@@ -255,71 +341,88 @@ namespace Oak.ViewModels
 
         private void TransferFile(object parameter)
         {
-            this.State = StartPageStates.Rescan;
+            Task.Run(() => {
+                this.IsBusy = true;
+                try
+                {
+                    var fileName = this.GetFileName();
+                    this.SaveDataToCsv(fileName);
+                    SendFileByEmailMessage.Send(fileName);
+                    this.State = StartPageStates.Rescan;
+                }
+                catch (Exception exception)
+                {
+                    ShowToastMessage.Send(exception.Message);
+                }
+                finally
+                {
+                    this.IsBusy = false;
+                }
+            });
         }
 
         private void Program1(object parameter)
         {
             if (this.State == StartPageStates.Programs)
                 this.SaveDataToCsv(1);
-
-            this.State = StartPageStates.Rescan;
+            else if (this.State == StartPageStates.Check)
+                this.CheckData(1);
         }
 
         private void Program2(object parameter)
         {
             if (this.State == StartPageStates.Programs)
                 this.SaveDataToCsv(2);
-
-            this.State = StartPageStates.Rescan;
+            else if (this.State == StartPageStates.Check)
+                this.CheckData(2);
         }
 
         private void Program3(object parameter)
         {
             if (this.State == StartPageStates.Programs)
                 this.SaveDataToCsv(3);
-
-            this.State = StartPageStates.Rescan;
+            else if (this.State == StartPageStates.Check)
+                this.CheckData(3);
         }
 
         private void Program4(object parameter)
         {
             if (this.State == StartPageStates.Programs)
                 this.SaveDataToCsv(4);
-
-            this.State = StartPageStates.Rescan;
+            else if (this.State == StartPageStates.Check)
+                this.CheckData(4);
         }
 
         private void Program5(object parameter)
         {
             if (this.State == StartPageStates.Programs)
                 this.SaveDataToCsv(5);
-
-            this.State = StartPageStates.Rescan;
+            else if (this.State == StartPageStates.Check)
+                this.CheckData(5);
         }
 
         private void Program6(object parameter)
         {
             if (this.State == StartPageStates.Programs)
                 this.SaveDataToCsv(6);
-
-            this.State = StartPageStates.Rescan;
+            else if (this.State == StartPageStates.Check)
+                this.CheckData(6);
         }
 
         private void Program7(object parameter)
         {
             if (this.State == StartPageStates.Programs)
                 this.SaveDataToCsv(7);
-
-            this.State = StartPageStates.Rescan;
+            else if (this.State == StartPageStates.Check)
+                this.CheckData(7);
         }
 
         private void Program8(object parameter)
         {
             if (this.State == StartPageStates.Programs)
                 this.SaveDataToCsv(8);
-
-            this.State = StartPageStates.Rescan;
+            else if (this.State == StartPageStates.Check)
+                this.CheckData(8);
         }
 
         private void Rescan(object parameter)
