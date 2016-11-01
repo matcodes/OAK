@@ -167,16 +167,29 @@ namespace Oak.ViewModels
                 {
                     var storeData = this.ReadDataFromCsv(index);
 
-                    var currentSample = _currentData.Select(sd => (double)sd.Y).ToArray();
-                    var storeSample = storeData.Select(sd => (double)sd.Y).ToArray();
+                    //var currentSample = _currentData.Select(sd => (double)sd.Y).ToArray();
+                    //var storeSample = storeData.Select(sd => (double)sd.Y).ToArray();
 
-                    var adv = _oakCrossCorr.ADV(currentSample, storeSample);
-                    var fdav = _oakCrossCorr.FDAV(currentSample, storeSample);
-                    var fdls = _oakCrossCorr.FDLS(currentSample, storeSample);
+                    var current = new List<Double>();
+                    var store = new List<Double>();
+
+                    foreach (var currentItem in _currentData)
+                    {
+                        var storeItem = storeData.FirstOrDefault(sd => sd.X == currentItem.X);
+                        if (storeItem != null)
+                        {
+                            current.Add(currentItem.Y);
+                            store.Add(storeItem.Y);
+                        }
+                    }
+
+                    //var adv = _oakCrossCorr.ADV(current.ToArray(), store.ToArray());
+                    //var fdav = _oakCrossCorr.FDAV(current.ToArray(), store.ToArray());
+                    //var fdls = _oakCrossCorr.FDLS(current.ToArray(), store.ToArray());
                     //var idiff = _oakCrossCorr.IDIFF(currentSample, storeSample);
-                    var iis = _oakCrossCorr.IS(currentSample, storeSample);
-                    var ls = _oakCrossCorr.LS(currentSample, storeSample);
-                    var savg = _oakCrossCorr.SAVG(currentSample, storeSample);
+                    var iis = _oakCrossCorr.IS(current.ToArray(), store.ToArray());
+                    //var ls = _oakCrossCorr.LS(current.ToArray(), store.ToArray());
+                    //var savg = _oakCrossCorr.SAVG(current.ToArray(), store.ToArray());
 
                     this.State = StartPageStates.Rescan;
                 }

@@ -27,7 +27,7 @@ namespace Oak.Droid.Services
         public static readonly UUID SERVICE_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151510");
         public static readonly UUID COMMAND_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151513");
         public static readonly UUID DATA_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151512");
-        public static readonly string DEVICE_NAME = "Oak1"; //"Oak FS-1";
+        public static readonly string DEVICE_NAME = "Oak FS-1";
 
         public static readonly int PACKAGE_COUNT = 1600;
         #endregion
@@ -84,21 +84,17 @@ namespace Oak.Droid.Services
 
         public void AddData(byte[] data)
         {
-            var x = BitConverter.ToDouble(new byte[] { data[0], data[1], data[2], data[3] }, 0);
-            var y = BitConverter.ToDouble(new byte[] { data[4], data[5], data[6], data[7] }, 0);
-            var n = BitConverter.ToUInt16(new byte[] { data[8], data[9] }, 8);
-
             var scannerData = new ScannerData {
-                X = BitConverter.ToUInt32(data, 0),
-                Y = BitConverter.ToUInt32(data, 4),
-                N = BitConverter.ToUInt16(data, 8),
+                X = BitConverter.ToUInt32(data, 6),
+                Y = BitConverter.ToUInt32(data, 2),
+                N = BitConverter.ToUInt16(data, 0),
             };
             this.Data.Add(scannerData);
 
             scannerData = new ScannerData {
-                X = BitConverter.ToUInt32(data, 10),
-                Y = BitConverter.ToUInt32(data, 14),
-                N = BitConverter.ToUInt16(data, 18)
+                X = BitConverter.ToUInt32(data, 16),
+                Y = BitConverter.ToUInt32(data, 12),
+                N = BitConverter.ToUInt16(data, 10)
             };
             this.Data.Add(scannerData);
 
