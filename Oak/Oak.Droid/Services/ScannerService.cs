@@ -89,6 +89,7 @@ namespace Oak.Droid.Services
                 Y = BitConverter.ToUInt32(data, 2),
                 N = BitConverter.ToUInt16(data, 0),
             };
+            scannerData.Y = (UInt32)(scannerData.Y + this.GetRandom());
             this.Data.Add(scannerData);
 
             scannerData = new ScannerData {
@@ -96,6 +97,7 @@ namespace Oak.Droid.Services
                 Y = BitConverter.ToUInt32(data, 12),
                 N = BitConverter.ToUInt16(data, 10)
             };
+            scannerData.Y = (UInt32)(scannerData.Y + this.GetRandom());
             this.Data.Add(scannerData);
 
             this.PackageCount++;
@@ -109,6 +111,17 @@ namespace Oak.Droid.Services
             Task.Run(() => {
                 this.Connect();
             });
+        }
+
+        private System.Random _random = new System.Random();
+
+        private int GetRandom()
+        {
+            var value = _random.Next(60000);
+            var minus = _random.Next(100);
+            if (minus < 50)
+                value = value * -1;
+            return value;
         }
 
         #region IScannerService

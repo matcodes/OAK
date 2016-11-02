@@ -184,13 +184,13 @@ namespace Oak.ViewModels
                         }
                     }
 
-                    //var adv = _oakCrossCorr.ADV(current.ToArray(), store.ToArray());
-                    //var fdav = _oakCrossCorr.FDAV(current.ToArray(), store.ToArray());
-                    //var fdls = _oakCrossCorr.FDLS(current.ToArray(), store.ToArray());
-                    //var idiff = _oakCrossCorr.IDIFF(currentSample, storeSample);
+                    var adv = _oakCrossCorr.ADV(current.ToArray(), store.ToArray());
+                    var fdav = _oakCrossCorr.FDAV(current.ToArray(), store.ToArray());
+                    var fdls = _oakCrossCorr.FDLS(current.ToArray(), store.ToArray());
+                    var idiff = _oakCrossCorr.IDIFF(current.ToArray(), store.ToArray());
                     var iis = _oakCrossCorr.IS(current.ToArray(), store.ToArray());
-                    //var ls = _oakCrossCorr.LS(current.ToArray(), store.ToArray());
-                    //var savg = _oakCrossCorr.SAVG(current.ToArray(), store.ToArray());
+                    var ls = _oakCrossCorr.LS(current.ToArray(), store.ToArray());
+                    var savg = _oakCrossCorr.SAVG(current.ToArray(), store.ToArray());
 
                     var text = "";
                     if (iis > 90)
@@ -287,8 +287,8 @@ namespace Oak.ViewModels
                 try
                 {
                     this.State = StartPageStates.Connecting;
-                    //var result = _scannerService.Connect();
-                    Task.Delay(2000).Wait();
+                    var result = _scannerService.Connect();
+                    //Task.Delay(2000).Wait();
                     this.State = StartPageStates.Connected;
                 }
                 catch (Exception exception)
@@ -346,19 +346,19 @@ namespace Oak.ViewModels
                 this.IsBusy = true;
                 try
                 {
-                    //var result = _scannerService.Scan();
-                    Task.Delay(3000).Wait();
-                    var result = new ScannerData[] {
-                        new ScannerData { X = 1, Y = 1, N = 1 },
-                        new ScannerData { X = 2, Y = 2, N = 2 },
-                        new ScannerData { X = 3, Y = 3, N = 3 },
-                        new ScannerData { X = 4, Y = 4, N = 4 },
-                        new ScannerData { X = 5, Y = 5, N = 5 },
-                        new ScannerData { X = 6, Y = 6, N = 6 },
-                        new ScannerData { X = 7, Y = 7, N = 7 },
-                        new ScannerData { X = 8, Y = 8, N = 8 },
-                        new ScannerData { X = 9, Y = 9, N = 9 }
-                    };
+                    var result = _scannerService.Scan();
+                    //Task.Delay(3000).Wait();
+                    //var result = new ScannerData[] {
+                    //    new ScannerData { X = 1, Y = 1, N = 1 },
+                    //    new ScannerData { X = 2, Y = 2, N = 2 },
+                    //    new ScannerData { X = 3, Y = 3, N = 3 },
+                    //    new ScannerData { X = 4, Y = 4, N = 4 },
+                    //    new ScannerData { X = 5, Y = 5, N = 5 },
+                    //    new ScannerData { X = 6, Y = 6, N = 6 },
+                    //    new ScannerData { X = 7, Y = 7, N = 7 },
+                    //    new ScannerData { X = 8, Y = 8, N = 8 },
+                    //    new ScannerData { X = 9, Y = 9, N = 9 }
+                    //};
                     _currentData = result;
                     this.State = StartPageStates.Store;
                 }
