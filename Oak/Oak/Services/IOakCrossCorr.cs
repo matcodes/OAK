@@ -27,6 +27,10 @@ namespace Oak.Services
 
         // Integral ABS Difference Method
         double IDIFF(double[] sample1, double[] sample2);
+
+
+
+        double GetCoeff(double[] sample1, double[] sample2);
     }
     #endregion
 }

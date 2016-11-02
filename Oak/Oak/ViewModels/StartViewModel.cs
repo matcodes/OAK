@@ -184,21 +184,23 @@ namespace Oak.ViewModels
                         }
                     }
 
-                    var adv = _oakCrossCorr.ADV(current.ToArray(), store.ToArray());
-                    var fdav = _oakCrossCorr.FDAV(current.ToArray(), store.ToArray());
-                    var fdls = _oakCrossCorr.FDLS(current.ToArray(), store.ToArray());
-                    var idiff = _oakCrossCorr.IDIFF(current.ToArray(), store.ToArray());
-                    var iis = _oakCrossCorr.IS(current.ToArray(), store.ToArray());
-                    var ls = _oakCrossCorr.LS(current.ToArray(), store.ToArray());
-                    var savg = _oakCrossCorr.SAVG(current.ToArray(), store.ToArray());
+                    //var adv = _oakCrossCorr.ADV(current.ToArray(), store.ToArray());
+                    //var fdav = _oakCrossCorr.FDAV(current.ToArray(), store.ToArray());
+                    //var fdls = _oakCrossCorr.FDLS(current.ToArray(), store.ToArray());
+                    //var idiff = _oakCrossCorr.IDIFF(current.ToArray(), store.ToArray());
+                    //var iis = _oakCrossCorr.IS(current.ToArray(), store.ToArray());
+                    //var ls = _oakCrossCorr.LS(current.ToArray(), store.ToArray());
+                    //var savg = _oakCrossCorr.SAVG(current.ToArray(), store.ToArray());
+
+                    var coeff = _oakCrossCorr.GetCoeff(current.ToArray(), store.ToArray());
 
                     var text = "";
-                    if (iis > 90)
+                    if (coeff > 90)
                     {
                         this.TestResult = TestResults.OK;
                         text = "SAFE ({0}%)";
                     }
-                    else if ((iis > 70) && (iis <= 90))
+                    else if ((coeff > 70) && (coeff <= 90))
                     {
                         this.TestResult = TestResults.Warning;
                         text = "WARNING ({0}%)";
@@ -208,7 +210,7 @@ namespace Oak.ViewModels
                         this.TestResult = TestResults.Danger;
                         text = "DANGER ({0}%)";
                     }
-                    this.TestResultText = String.Format(text, iis.ToString("0.00"));
+                    this.TestResultText = String.Format(text, coeff.ToString("0.00"));
 
                     this.IsTestResultVisible = true;
                  }

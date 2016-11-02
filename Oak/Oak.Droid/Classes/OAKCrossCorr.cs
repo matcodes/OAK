@@ -150,6 +150,14 @@ namespace Oak.Droid.Classes
 
             return result;
         }
+
+        public double GetCoeff(double[] sample1, double[] sample2)
+        {
+            SimpleRegression regression = new SimpleRegression();
+            for (int i = 0; i < sample1.Length; i++)
+                regression.AddData(sample1[i], sample2[i]);
+            return regression.GetRegression();
+        }
     }
     #endregion
 }
