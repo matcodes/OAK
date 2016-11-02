@@ -15,11 +15,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\IndexToBoolConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\ProgramBoolToColorConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\ReverseBoolConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\TestResultToImageConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\AppActivityIndicatorColors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\AppFonts.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\CameraOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\ProductCategories.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\StartPageStates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Enums\TestResults.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Messages\CloseAppMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Messages\SendFileByEmailMessage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Messages\ShowToastMessage.cs" />
@@ -37,6 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\StartViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\MainPage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\OakPage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Views\Popups\TestResultPopup.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\StartPage.cs" />
   </ItemGroup>
 </Project>

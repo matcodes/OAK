@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using System.Runtime.CompilerServices;
 using Oak.Classes.Converters;
+using Oak.Views.Popups;
 
 namespace Oak.Views
 {
@@ -76,9 +77,20 @@ namespace Oak.Views
             };
             _mainPanel.Children.Add(_startingPanel);
 
+            var resultPopup = this.CreateResultPopup();
+
+            var content = new Grid {
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Fill,
+                RowSpacing = 0,
+                ColumnSpacing = 0
+            };
+            content.Children.Add(_mainPanel);
+            content.Children.Add(resultPopup);
+
             this.ShowStartingPanel();
 
-            return _mainPanel;
+            return content;
         }
 
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -232,6 +244,14 @@ namespace Oak.Views
                 _mainPanel.LowerChild(_startingPanel);
                 _mainPanel.RaiseChild(_waitConnectionPanel);
                 _startingPanel.FadeTo(0, ANIMATION_TIME);
+                _connectedCheck.FadeTo(0, ANIMATION_TIME);
+                this.IsConnectingVisible = false;
+                _phone.LayoutTo(new Rectangle(0 - _phone.Bounds.Width / 4, _phone.Bounds.Top, _phone.Bounds.Width, _phone.Bounds.Height), ANIMATION_TIME);
+                _scanner.LayoutTo(new Rectangle(this.Width - _scanner.Bounds.Width / 4 * 3, _scanner.Bounds.Top, _scanner.Bounds.Width, _scanner.Bounds.Height), ANIMATION_TIME);
+                _connectedDownText.FadeTo(0, ANIMATION_TIME);
+                _connectingDownText.FadeTo(0, ANIMATION_TIME);
+                _pairConnectDownText.FadeTo(1, ANIMATION_TIME);
+
                 _waitConnectionPanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -1643,6 +1663,18 @@ namespace Oak.Views
             grid.Children.Add(checkContent, 0, 1);
 
             return grid;
+        }
+
+        private View CreateResultPopup()
+        {
+            var testResultPopup = new TestResultPopup {
+            };
+            testResultPopup.SetBinding(TestResultPopup.IsVisibleProperty, "IsTestResultVisible");
+            testResultPopup.SetBinding(TestResultPopup.ResultProperty, "TestResult");
+            testResultPopup.SetBinding(TestResultPopup.TextProperty, "TestResultText");
+            testResultPopup.SetBinding(TestResultPopup.ContinueCommandProperty, "TestResultContinueCommand");
+
+            return testResultPopup;
         }
 
         public new StartViewModel ViewModel

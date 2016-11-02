@@ -104,6 +104,13 @@ namespace Oak.Droid.Services
                 this.ReadData();
         }
 
+        public void Reconnnect()
+        {
+            Task.Run(() => {
+                this.Connect();
+            });
+        }
+
         #region IScannerService
         public void FindDevice()
         {
@@ -271,6 +278,8 @@ namespace Oak.Droid.Services
                 }
                 else if (newState == ProfileState.Disconnected)
                 {
+                    _scannerService.IsConnected = false;
+                    _scannerService.Reconnnect();
                     Android.Util.Log.Info(ScannerService.TAG, "Disconnected from GATT server.");
                 }
             }

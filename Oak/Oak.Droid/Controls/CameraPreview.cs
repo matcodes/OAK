@@ -14,6 +14,7 @@ using static Android.Hardware.Camera;
 using Xamarin.Forms;
 using Oak.Services;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Oak.Droid.Controls
 {
@@ -59,7 +60,9 @@ namespace Oak.Droid.Controls
         public void TakePicture()
         {
             if (this.Preview != null)
+            {
                 this.Preview.TakePicture(null, null, this);
+            }
         }
 
         protected override void OnMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -172,14 +175,17 @@ namespace Oak.Droid.Controls
         #region OnPictureTaken
         public void OnPictureTaken(byte[] data, Camera camera)
         {
-            var fileService = DependencyService.Get<IFileService>();
+            camera.StartPreview();
+            Task.Run(() => {
+                var fileService = DependencyService.Get<IFileService>();
 
-            var fileName = "photo_" + DateTime.Now.ToString() + ".jpg";
-            fileName = fileName.Replace("/", "_");
+                var fileName = "photo_" + DateTime.Now.ToString() + ".jpg";
+                fileName = fileName.Replace("/", "_");
 
-            fileName = Path.Combine(fileService.AppWorkPath, fileName);
+                fileName = Path.Combine(fileService.AppWorkPath, fileName);
 
-            File.WriteAllBytes(fileName, data);
+                File.WriteAllBytes(fileName, data);
+            });
         }
         #endregion
     }
