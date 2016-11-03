@@ -1066,8 +1066,7 @@ namespace Oak.Views
             #region progress
             var progressBar = new ProgressBar {
                 HorizontalOptions = LayoutOptions.Fill,
-                VerticalOptions = LayoutOptions.Start,
-                Co
+                VerticalOptions = LayoutOptions.Start
             };
             progressBar.SetBinding(ProgressBar.ProgressProperty, "Progress");
 
