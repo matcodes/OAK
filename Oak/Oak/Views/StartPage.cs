@@ -1063,6 +1063,23 @@ namespace Oak.Views
             scanContent.Children.Add(scan);
             #endregion
 
+            #region progress
+            var progressBar = new ProgressBar {
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Start,
+                Co
+            };
+            progressBar.SetBinding(ProgressBar.ProgressProperty, "Progress");
+
+            var progressBarContent = new ContentView {
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.End,
+                Padding = new Thickness(80, 0, 80, 100),
+                Content = progressBar
+            };
+            progressBarContent.SetBinding(ContentView.IsVisibleProperty, "IsProgressVisible");
+            #endregion
+
             var grid = new Grid {
                 HorizontalOptions = LayoutOptions.Fill,
                 VerticalOptions = LayoutOptions.Fill,
@@ -1077,6 +1094,7 @@ namespace Oak.Views
             };
             grid.Children.Add(logoContent, 0, 0);
             grid.Children.Add(scanContent, 0, 1);
+            grid.Children.Add(progressBarContent, 0, 1);
 
             return grid;
         }

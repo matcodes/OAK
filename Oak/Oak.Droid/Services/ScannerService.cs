@@ -109,10 +109,20 @@ namespace Oak.Droid.Services
             scannerData.Y = (UInt32)(scannerData.Y + this.GetRandom());
             this.Data.Add(scannerData);
 
+            if (this.Listener != null)
+                this.SetScanProgress();
             this.PackageCount++;
 
             if (this.PackageCount < PACKAGE_COUNT)
                 this.ReadPackage();
+        }
+
+        private void SetScanProgress()
+        {
+            Task.Run(() => {
+                var progress = (double)((this.PackageCount + 1) / (double)PACKAGE_COUNT);
+                this.Listener.ScanProgress(progress);
+            });
         }
 
         public void Reconnnect()
@@ -124,7 +134,8 @@ namespace Oak.Droid.Services
 
         public void RequestMtu()
         {
-//            _bluetoothGatt.RequestMtu(103);
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Lollipop)
+                _bluetoothGatt.RequestMtu(103);
         }
 
         private System.Random _random = new System.Random();
@@ -258,6 +269,8 @@ namespace Oak.Droid.Services
         public string ReadDataErrorMessage = "";
 
         public bool IsConnected { get; set; } = false;
+
+        public IScannerServiceListener Listener { get; set; }
         #endregion
 
         #region Receiver

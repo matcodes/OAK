@@ -13,7 +13,7 @@ using Xamarin.Forms;
 namespace Oak.ViewModels
 {
     #region StartViewModel
-    public class StartViewModel : OakViewModel
+    public class StartViewModel : OakViewModel, IScannerServiceListener
     {
         #region Static members
         public static readonly string ALCOHOL_TAG = "ALCOHOL";
@@ -32,6 +32,7 @@ namespace Oak.ViewModels
         public StartViewModel() : base()
         {
             _scannerService = DependencyService.Get<IScannerService>();
+            _scannerService.Listener = this;
             _fileService = DependencyService.Get<IFileService>();
 
             _oakCrossCorr = DependencyService.Get<IOakCrossCorr>();
@@ -353,6 +354,8 @@ namespace Oak.ViewModels
                 this.IsBusy = true;
                 try
                 {
+                    this.SetProgress(0);
+                    this.SetProgressVisible(true);
                     var result = _scannerService.Scan();
                     //Task.Delay(3000).Wait();
                     //var result = new ScannerData[] {
@@ -375,8 +378,23 @@ namespace Oak.ViewModels
                 }
                 finally
                 {
+                    this.SetProgressVisible(false);
                     this.IsBusy = false;
                 }
+            });
+        }
+
+        private void SetProgress(double value)
+        {
+            Device.BeginInvokeOnMainThread(() => {
+                this.Progress = value;
+            });
+        }
+
+        private void SetProgressVisible(bool visible)
+        {
+            Device.BeginInvokeOnMainThread(() => {
+                this.IsProgressVisible = visible;
             });
         }
 
@@ -510,6 +528,13 @@ namespace Oak.ViewModels
             this.State = StartPageStates.Rescan;
         }
 
+        #region IScannerServiceListener
+        public void ScanProgress(double progress)
+        {
+            this.SetProgress(progress);
+        }
+        #endregion
+
         public StartPageStates State
         {
             get { return (StartPageStates)this.GetValue("State", StartPageStates.Starting); }
@@ -592,6 +617,18 @@ namespace Oak.ViewModels
         {
             get { return (bool)this.GetValue("IsTestResultVisible", false); }
             set { this.SetValue("IsTestResultVisible", value); }
+        }
+
+        public bool IsProgressVisible
+        {
+            get { return (bool)this.GetValue("IsProgressVisible", false); }
+            set { this.SetValue("IsProgressVisible", value); }
+        }
+
+        public double Progress
+        {
+            get { return (double)this.GetValue("Progress", (double)0); }
+            set { this.SetValue("Progress", value); }
         }
 
         public VisualCommand StartConnectionCommand { get; private set; }

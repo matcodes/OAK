@@ -15,6 +15,8 @@ namespace Oak.Services
         ScannerData[] Scan();
 
         int Timeout { get; set; }
+
+        IScannerServiceListener Listener { get; set; }
     }
     #endregion
 }
