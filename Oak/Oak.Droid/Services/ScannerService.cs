@@ -62,8 +62,12 @@ namespace Oak.Droid.Services
             _bluetoothGatt.DiscoverServices();
         }
 
+        private BluetoothGattCharacteristic _bluetoothData = null;
+
         public void ReadData()
         {
+            _limit = 0;
+
             var bluetoothService = _bluetoothGatt.GetService(SERVICE_UUID);
             if (bluetoothService == null)
             {
@@ -71,14 +75,19 @@ namespace Oak.Droid.Services
                 return;
             }
 
-            var bluetoothData = bluetoothService.GetCharacteristic(DATA_UUID);
-            if (bluetoothData == null)
+            _bluetoothData = bluetoothService.GetCharacteristic(DATA_UUID);
+            if (_bluetoothData == null)
             {
                 this.ReadDataErrorMessage = "Data characteristic not found.";
                 return;
             }
 
-            if (!_bluetoothGatt.ReadCharacteristic(bluetoothData))
+            this.ReadPackage();
+        }
+
+        private void ReadPackage()
+        {
+            if (!_bluetoothGatt.ReadCharacteristic(_bluetoothData))
                 this.ReadDataErrorMessage = "Failed to read Data.";
         }
 
@@ -103,7 +112,7 @@ namespace Oak.Droid.Services
             this.PackageCount++;
 
             if (this.PackageCount < PACKAGE_COUNT)
-                this.ReadData();
+                this.ReadPackage();
         }
 
         public void Reconnnect()
@@ -113,14 +122,23 @@ namespace Oak.Droid.Services
             });
         }
 
+        public void RequestMtu()
+        {
+//            _bluetoothGatt.RequestMtu(103);
+        }
+
         private System.Random _random = new System.Random();
+        private int _limit = 0;
 
         private int GetRandom()
         {
-            var value = _random.Next(60000);
-            var minus = _random.Next(100);
-            if (minus < 50)
-                value = value * -1;
+            if (_limit == 0)
+                _limit = _random.Next(100);
+            //var value = 0;
+            var value = _random.Next(_limit) * -1;
+            //var minus = _random.Next(100);
+            ////if (minus < 50)
+            //    value = value * -1;
             return value;
         }
 
@@ -287,6 +305,7 @@ namespace Oak.Droid.Services
                     Android.Util.Log.Info(ScannerService.TAG, "Connected to GATT server.");
                     _scannerService.IsConnected = true;
                     _scannerService.DiscoverServices();
+                    _scannerService.RequestMtu();
 
                 }
                 else if (newState == ProfileState.Disconnected)
@@ -327,6 +346,13 @@ namespace Oak.Droid.Services
 
             public override void OnCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic)
             {
+            }
+
+            public override void OnMtuChanged(BluetoothGatt gatt, int mtu, [GeneratedEnum] GattStatus status)
+            {
+                base.OnMtuChanged(gatt, mtu, status);
+
+                Android.Util.Log.Warn(ScannerService.TAG, "OnMtuChanged received: " + status);
             }
         }
         #endregion

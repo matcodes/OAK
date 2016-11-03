@@ -15,7 +15,7 @@ namespace Oak.Views.Popups
         #region Static members
         public static readonly BindableProperty ContinueCommandProperty = BindableProperty.Create("ContinueCommand", typeof(ICommand), typeof(TestResultPopup), null);
         public static readonly BindableProperty TextProperty = BindableProperty.Create("Text", typeof(string), typeof(TestResultPopup), default(string));
-        public static readonly BindableProperty ResultProperty = BindableProperty.Create("State", typeof(TestResults), typeof(TestResultPopup), TestResults.OK);
+        public static readonly BindableProperty ResultProperty = BindableProperty.Create("Result", typeof(TestResults), typeof(TestResultPopup), TestResults.OK);
         #endregion
 
         public TestResultPopup() : base()

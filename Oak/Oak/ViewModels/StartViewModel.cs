@@ -195,24 +195,29 @@ namespace Oak.ViewModels
                     var coeff = _oakCrossCorr.GetCoeff(current.ToArray(), store.ToArray());
 
                     var text = "";
-                    if (coeff > 90)
+                    var result = TestResults.OK;
+                    if (coeff > 0.9)
                     {
-                        this.TestResult = TestResults.OK;
-                        text = "SAFE ({0}%)";
+                        result = TestResults.OK;
+                        text = "SAFE ({0})";
                     }
-                    else if ((coeff > 70) && (coeff <= 90))
+                    else if ((coeff > 0.7) && (coeff <= 0.9))
                     {
-                        this.TestResult = TestResults.Warning;
-                        text = "WARNING ({0}%)";
+                        result = TestResults.Warning;
+                        text = "WARNING ({0})";
                     }
                     else
                     {
-                        this.TestResult = TestResults.Danger;
-                        text = "DANGER ({0}%)";
+                        result = TestResults.Danger;
+                        text = "DANGER ({0})";
                     }
-                    this.TestResultText = String.Format(text, coeff.ToString("0.00"));
 
-                    this.IsTestResultVisible = true;
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        this.TestResultText = String.Format(text, coeff.ToString("0.0000"));
+                        this.TestResult = result;
+                        this.IsTestResultVisible = true;
+                    });
                  }
                 catch (Exception exception)
                 {
