@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Classes\BaseData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\BaseViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\IndexToBoolConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\ProductCategoriesToTextConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\ProgramBoolToColorConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\ReverseBoolConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Converters\TestResultToImageConverter.cs" />
@@ -29,12 +30,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppActivityIndicator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppButton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppCameraPreview.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\AppProgressBar.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppTextCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Controls\AppLabel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IFileService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IOakCrossCorr.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Services\IScanerServiceListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\IScannerService.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Services\IScannerServiceListener.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Services\ScannerData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\OakViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\StartViewModel.cs" />

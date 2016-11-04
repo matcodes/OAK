@@ -29,7 +29,7 @@ namespace Oak.Droid.Services
         public static readonly UUID DATA_UUID = UUID.FromString("ea9d5e37-dd5c-41d7-915c-624ec0151512");
         public static readonly string DEVICE_NAME = "Oak FS-1";
 
-        public static readonly int PACKAGE_COUNT = 1600;
+        public static readonly int DATA_ITEMS_COUNT = 3200;
         #endregion
 
         private readonly BluetoothAdapter _adapter = null;
@@ -93,34 +93,36 @@ namespace Oak.Droid.Services
 
         public void AddData(byte[] data)
         {
-            var scannerData = new ScannerData {
-                X = BitConverter.ToUInt32(data, 6),
-                Y = BitConverter.ToUInt32(data, 2),
-                N = BitConverter.ToUInt16(data, 0),
-            };
-            scannerData.Y = (UInt32)(scannerData.Y + this.GetRandom());
-            this.Data.Add(scannerData);
-
-            scannerData = new ScannerData {
-                X = BitConverter.ToUInt32(data, 16),
-                Y = BitConverter.ToUInt32(data, 12),
-                N = BitConverter.ToUInt16(data, 10)
-            };
-            scannerData.Y = (UInt32)(scannerData.Y + this.GetRandom());
-            this.Data.Add(scannerData);
+            var index = 0;
+            while (index < data.Length)
+            {
+                this.AddScannerData(data, index);
+                index += 10;
+            }
 
             if (this.Listener != null)
                 this.SetScanProgress();
-            this.PackageCount++;
 
-            if (this.PackageCount < PACKAGE_COUNT)
+            if (this.Data.Count < DATA_ITEMS_COUNT)
                 this.ReadPackage();
+        }
+
+        private void AddScannerData(byte[] data, int startIndex)
+        {
+            var scannerData = new ScannerData
+            {
+                X = BitConverter.ToUInt32(data, startIndex + 6),
+                Y = BitConverter.ToUInt32(data, startIndex + 2),
+                N = BitConverter.ToUInt16(data, startIndex + 0),
+            };
+            scannerData.Y = (UInt32)(scannerData.Y + this.GetRandom());
+            this.Data.Add(scannerData);
         }
 
         private void SetScanProgress()
         {
             Task.Run(() => {
-                var progress = (double)((this.PackageCount + 1) / (double)PACKAGE_COUNT);
+                var progress = (double)((this.Data.Count) / (double)DATA_ITEMS_COUNT);
                 this.Listener.ScanProgress(progress);
             });
         }
@@ -130,6 +132,17 @@ namespace Oak.Droid.Services
             Task.Run(() => {
                 this.Connect();
             });
+        }
+
+        public void RequestConnectionPriority()
+        {
+            try
+            {
+                _bluetoothGatt.RequestConnectionPriority(GattConnectionPriority.High);
+            }
+            catch
+            {
+            }
         }
 
         public void RequestMtu()
@@ -220,7 +233,6 @@ namespace Oak.Droid.Services
             //var startTime = DateTime.Now;
 
             this.Data.Clear();
-            this.PackageCount = 0;
             this.ReadDataErrorMessage = "";
 
             if (!this.IsConnected)
@@ -241,9 +253,8 @@ namespace Oak.Droid.Services
             var isWait = true;
             while (isWait)
             {
-                if (this.PackageCount >= PACKAGE_COUNT)
+                if (this.Data.Count >= DATA_ITEMS_COUNT)
                     isWait = false;
-
                 else
                 {
                     if (!String.IsNullOrEmpty(this.ReadDataErrorMessage))
@@ -261,8 +272,6 @@ namespace Oak.Droid.Services
         }
 
         public int Timeout { get; set; } = 30000;
-
-        public int PackageCount { get; set; } = 0;
 
         public List<ScannerData> Data { get; set; } = new List<ScannerData>();
 
@@ -316,10 +325,10 @@ namespace Oak.Droid.Services
                 if (newState == ProfileState.Connected)
                 {
                     Android.Util.Log.Info(ScannerService.TAG, "Connected to GATT server.");
-                    _scannerService.IsConnected = true;
-                    _scannerService.DiscoverServices();
+                    _scannerService.RequestConnectionPriority();
                     _scannerService.RequestMtu();
-
+                    _scannerService.DiscoverServices();
+                    _scannerService.IsConnected = true;
                 }
                 else if (newState == ProfileState.Disconnected)
                 {

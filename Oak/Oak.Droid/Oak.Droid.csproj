@@ -128,6 +128,7 @@
     <Compile Include="Renderers\AppButtonRenderer.cs" />
     <Compile Include="Renderers\AppCameraPreviewRenderer.cs" />
     <Compile Include="Renderers\AppLabelRenderer.cs" />
+    <Compile Include="Renderers\AppProgressBarRenderer.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\FileService.cs" />
@@ -295,6 +296,12 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\warning_check.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\appbutton_empty.9.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\appbutton_empty_data.xml" />
   </ItemGroup>
   <Import Project="..\Oak\Oak.projitems" Label="Shared" Condition="Exists('..\Oak\Oak.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />

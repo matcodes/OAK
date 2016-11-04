@@ -92,7 +92,10 @@ namespace Oak.Views
             return null;
         }
 
-        public OakViewModel ViewModel { get; protected set; }
+        public OakViewModel ViewModel
+        {
+            get { return (this.BindingContext as OakViewModel); }
+        }
     }
     #endregion
 }

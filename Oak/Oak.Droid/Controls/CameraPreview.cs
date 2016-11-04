@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 namespace Oak.Droid.Controls
 {
     #region CameraPreview
-    public sealed class CameraPreview : ViewGroup, ISurfaceHolderCallback, IPictureCallback
+    public sealed class CameraPreview : ViewGroup, ISurfaceHolderCallback, IPictureCallback, IAutoFocusCallback
     {
         private SurfaceView _surfaceView;
         private ISurfaceHolder _holder;
@@ -48,6 +48,27 @@ namespace Oak.Droid.Controls
             : base(context)
         {
             _surfaceView = new SurfaceView(context);
+            _surfaceView.Touch += (sender, args) =>
+            {
+                var x = args.Event.GetX();
+                var y = args.Event.GetY();
+
+                var touchRect = new Android.Graphics.Rect(
+                        (int)(x - 100),
+                        (int)(y - 100),
+                        (int)(x + 100),
+                        (int)(y + 100));
+
+
+                var targetFocusRect = new Android.Graphics.Rect(
+                        touchRect.Left * 2000 / this.Width - 1000,
+                        touchRect.Top * 2000 / this.Height - 1000,
+                        touchRect.Right * 2000 / this.Width - 1000,
+                        touchRect.Bottom * 2000 / this.Height - 1000);
+
+                this.DoTouchFocus(targetFocusRect);
+            };
+
             AddView(_surfaceView);
 
             _windowManager = Context.GetSystemService(Context.WindowService).JavaCast<IWindowManager>();
@@ -55,6 +76,32 @@ namespace Oak.Droid.Controls
             IsPreviewing = false;
             _holder = _surfaceView.Holder;
             _holder.AddCallback(this);
+        }
+
+        public void DoTouchFocus(Android.Graphics.Rect focusRect)
+        {
+            try
+            {
+                var list = new List<Camera.Area>();
+                Camera.Area focusArea = new Camera.Area(focusRect, 1000);
+                list.Add(focusArea);
+
+                var parameters = _camera.GetParameters();
+                parameters.FocusAreas = list;
+                parameters.MeteringAreas = list;
+                _camera.SetParameters(parameters);
+
+                _camera.AutoFocus(this);
+            }
+            catch (Exception exception)
+            {
+//                e.printStackTrace();
+            }
+
+            //if (isNeedToTakePic())
+            //{
+            //    onFocusListener.onFocused();
+            //}
         }
 
         public void TakePicture()
@@ -186,6 +233,12 @@ namespace Oak.Droid.Controls
 
                 File.WriteAllBytes(fileName, data);
             });
+        }
+        #endregion
+
+        #region IAutoFocusCallback
+        public void OnAutoFocus(bool success, Camera camera)
+        {
         }
         #endregion
     }

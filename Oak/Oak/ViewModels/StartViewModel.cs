@@ -66,6 +66,7 @@ namespace Oak.ViewModels
             this.Program7Command = new VisualCommand(this.Program7);
             this.Program8Command = new VisualCommand(this.Program8);
             this.RescanCommand = new VisualCommand(this.Rescan);
+            this.RetestCommand = new VisualCommand(this.Retest);
             this.CloseCommand = new VisualCommand(this.Close);
             this.CompareCommand = new VisualCommand(this.Compare);
             this.CheckCommand = new VisualCommand(this.Check);
@@ -97,9 +98,28 @@ namespace Oak.ViewModels
                 if ((this.State == StartPageStates.Programs) ||
                     (this.State == StartPageStates.Check))
                     this.SetProgramsParams();
+
+                if (this.State == StartPageStates.Programs)
+                    this.IsRetestVisible = false;
+
+                if (this.State == StartPageStates.Check)
+                    this.IsRetestVisible = true;
             }
 
             base.DoPropertyChanged(propertyName);
+        }
+
+        public override bool HandleBackButton()
+        {
+            var result = base.HandleBackButton();
+
+            if (this.IsTestResultVisible)
+            {
+                this.TestResultContinue(null);
+                result = true;
+            }
+
+            return result;
         }
 
         private string GetFileName(int index)
@@ -279,14 +299,14 @@ namespace Oak.ViewModels
 
         private void SetProgramsParams()
         {
-            this.Program1Exist = this.FileExist(1);
-            this.Program2Exist = this.FileExist(2);
-            this.Program3Exist = this.FileExist(3);
-            this.Program4Exist = this.FileExist(4);
-            this.Program5Exist = this.FileExist(5);
-            this.Program6Exist = this.FileExist(6);
-            this.Program7Exist = this.FileExist(7);
-            this.Program8Exist = this.FileExist(8);
+            this.Program1Exist = !this.FileExist(1);
+            this.Program2Exist = !this.FileExist(2);
+            this.Program3Exist = !this.FileExist(3);
+            this.Program4Exist = !this.FileExist(4);
+            this.Program5Exist = !this.FileExist(5);
+            this.Program6Exist = !this.FileExist(6);
+            this.Program7Exist = !this.FileExist(7);
+            this.Program8Exist = !this.FileExist(8);
         }
 
         private void StartConnection(object parameter)
@@ -295,8 +315,8 @@ namespace Oak.ViewModels
                 try
                 {
                     this.State = StartPageStates.Connecting;
-                    var result = _scannerService.Connect();
-                    //Task.Delay(2000).Wait();
+                    //var result = _scannerService.Connect();
+                    Task.Delay(2000).Wait();
                     this.State = StartPageStates.Connected;
                 }
                 catch (Exception exception)
@@ -356,19 +376,19 @@ namespace Oak.ViewModels
                 {
                     this.SetProgress(0);
                     this.SetProgressVisible(true);
-                    var result = _scannerService.Scan();
-                    //Task.Delay(3000).Wait();
-                    //var result = new ScannerData[] {
-                    //    new ScannerData { X = 1, Y = 1, N = 1 },
-                    //    new ScannerData { X = 2, Y = 2, N = 2 },
-                    //    new ScannerData { X = 3, Y = 3, N = 3 },
-                    //    new ScannerData { X = 4, Y = 4, N = 4 },
-                    //    new ScannerData { X = 5, Y = 5, N = 5 },
-                    //    new ScannerData { X = 6, Y = 6, N = 6 },
-                    //    new ScannerData { X = 7, Y = 7, N = 7 },
-                    //    new ScannerData { X = 8, Y = 8, N = 8 },
-                    //    new ScannerData { X = 9, Y = 9, N = 9 }
-                    //};
+                    //var result = _scannerService.Scan();
+                    Task.Delay(3000).Wait();
+                    var result = new ScannerData[] {
+                        new ScannerData { X = 1, Y = 1, N = 1 },
+                        new ScannerData { X = 2, Y = 2, N = 2 },
+                        new ScannerData { X = 3, Y = 3, N = 3 },
+                        new ScannerData { X = 4, Y = 4, N = 4 },
+                        new ScannerData { X = 5, Y = 5, N = 5 },
+                        new ScannerData { X = 6, Y = 6, N = 6 },
+                        new ScannerData { X = 7, Y = 7, N = 7 },
+                        new ScannerData { X = 8, Y = 8, N = 8 },
+                        new ScannerData { X = 9, Y = 9, N = 9 }
+                    };
                     _currentData = result;
                     this.State = StartPageStates.Store;
                 }
@@ -405,7 +425,7 @@ namespace Oak.ViewModels
 
         private void Test(object parameter)
         {
-            this.State = StartPageStates.Compare;
+            this.State = StartPageStates.Check;
         }
 
         private void KeepInPhone(object parameter)
@@ -502,6 +522,11 @@ namespace Oak.ViewModels
         private void Rescan(object parameter)
         {
             this.State = StartPageStates.Scan;
+        }
+
+        private void Retest(object parameter)
+        {
+            this.State = StartPageStates.Check;
         }
 
         private void Close(object parameter)
@@ -625,6 +650,12 @@ namespace Oak.ViewModels
             set { this.SetValue("IsProgressVisible", value); }
         }
 
+        public bool IsRetestVisible
+        {
+            get { return (bool)this.GetValue("IsRetestVisible", false); }
+            set { this.SetValue("IsRetestVisible", value); }
+        }
+
         public double Progress
         {
             get { return (double)this.GetValue("Progress", (double)0); }
@@ -670,6 +701,8 @@ namespace Oak.ViewModels
         public VisualCommand Program8Command { get; private set; }
 
         public VisualCommand RescanCommand { get; private set; }
+
+        public VisualCommand RetestCommand { get; private set; }
 
         public VisualCommand CloseCommand { get; private set; }
 

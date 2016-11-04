@@ -10,7 +10,8 @@ namespace Oak.Controls
     public class AppButton : Button
     {
         #region Static members
-        public static BindableProperty AppFontProperty = BindableProperty.Create("AppFont", typeof(AppFonts), typeof(AppLabel), AppFonts.MontserratLight);
+        public static BindableProperty AppFontProperty = BindableProperty.Create("AppFont", typeof(AppFonts), typeof(AppButton), AppFonts.MontserratLight);
+        public static BindableProperty IsEmptyProperty = BindableProperty.Create("IsEmpty", typeof(bool), typeof(AppButton), false);
         #endregion
 
         public AppButton() : base()
@@ -28,6 +29,12 @@ namespace Oak.Controls
         {
             get { return (AppFonts)this.GetValue(AppFontProperty); }
             set { this.SetValue(AppFontProperty, value); }
+        }
+
+        public bool IsEmpty
+        {
+            get { return (bool)this.GetValue(IsEmptyProperty); }
+            set { this.SetValue(IsEmptyProperty, value); }
         }
     }
     #endregion

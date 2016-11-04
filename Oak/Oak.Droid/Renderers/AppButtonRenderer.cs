@@ -35,8 +35,10 @@ namespace Oak.Droid.Renderers
         {
             base.OnElementPropertyChanged(sender, args);
 
-            if (args.PropertyName == AppLabel.AppFontProperty.PropertyName)
+            if (args.PropertyName == AppButton.AppFontProperty.PropertyName)
                 this.SetAppFont();
+            else if (args.PropertyName == AppButton.IsEmptyProperty.PropertyName)
+                this.SetBackgroundResource();
         }
 
         private void SetAppFont()
@@ -57,7 +59,14 @@ namespace Oak.Droid.Renderers
         {
             var element = (this.Element as AppButton);
 
-            this.Control.SetBackgroundResource(Resource.Drawable.appbutton);
+            if (element.IsEmpty)
+                this.Control.SetBackgroundResource(Resource.Drawable.appbutton_empty_data);
+            else
+                this.Control.SetBackgroundResource(Resource.Drawable.appbutton_data);
+
+            var text = element.Text;
+            element.Text = "";
+            element.Text = text;
         }
     }
     #endregion
