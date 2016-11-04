@@ -315,8 +315,8 @@ namespace Oak.ViewModels
                 try
                 {
                     this.State = StartPageStates.Connecting;
-                    //var result = _scannerService.Connect();
-                    Task.Delay(2000).Wait();
+                    var result = _scannerService.Connect();
+                    //Task.Delay(2000).Wait();
                     this.State = StartPageStates.Connected;
                 }
                 catch (Exception exception)
@@ -376,19 +376,19 @@ namespace Oak.ViewModels
                 {
                     this.SetProgress(0);
                     this.SetProgressVisible(true);
-                    //var result = _scannerService.Scan();
-                    Task.Delay(3000).Wait();
-                    var result = new ScannerData[] {
-                        new ScannerData { X = 1, Y = 1, N = 1 },
-                        new ScannerData { X = 2, Y = 2, N = 2 },
-                        new ScannerData { X = 3, Y = 3, N = 3 },
-                        new ScannerData { X = 4, Y = 4, N = 4 },
-                        new ScannerData { X = 5, Y = 5, N = 5 },
-                        new ScannerData { X = 6, Y = 6, N = 6 },
-                        new ScannerData { X = 7, Y = 7, N = 7 },
-                        new ScannerData { X = 8, Y = 8, N = 8 },
-                        new ScannerData { X = 9, Y = 9, N = 9 }
-                    };
+                    var result = _scannerService.Scan();
+                    //Task.Delay(3000).Wait();
+                    //var result = new ScannerData[] {
+                    //    new ScannerData { X = 1, Y = 1, N = 1 },
+                    //    new ScannerData { X = 2, Y = 2, N = 2 },
+                    //    new ScannerData { X = 3, Y = 3, N = 3 },
+                    //    new ScannerData { X = 4, Y = 4, N = 4 },
+                    //    new ScannerData { X = 5, Y = 5, N = 5 },
+                    //    new ScannerData { X = 6, Y = 6, N = 6 },
+                    //    new ScannerData { X = 7, Y = 7, N = 7 },
+                    //    new ScannerData { X = 8, Y = 8, N = 8 },
+                    //    new ScannerData { X = 9, Y = 9, N = 9 }
+                    //};
                     _currentData = result;
                     this.State = StartPageStates.Store;
                 }

@@ -40,7 +40,7 @@ namespace Oak.Droid.Renderers
         {
             var appProgressBar = (this.Element as AppProgressBar);
 
-            this.Control.ProgressDrawable.SetColorFilter(appProgressBar.Color.ToAndroid(), Android.Graphics.PorterDuff.Mode.Multiply);
+            //this.Control.ProgressDrawable.SetColorFilter(appProgressBar.Color.ToAndroid(), Android.Graphics.PorterDuff.Mode.Multiply);
         }
     }
     #endregion

@@ -35,6 +35,7 @@ namespace Oak.Droid.Services
         private readonly BluetoothAdapter _adapter = null;
         private BluetoothDevice _device = null;
         private BluetoothGatt _bluetoothGatt = null;
+        private BluetoothGattService _bluetoothService = null;
 
         private readonly List<BluetoothDevice> _devices = new List<BluetoothDevice>();
 
@@ -91,8 +92,14 @@ namespace Oak.Droid.Services
                 this.ReadDataErrorMessage = "Failed to read Data.";
         }
 
+        private int _readBytes = 0;
+
         public void AddData(byte[] data)
         {
+            _readBytes += data.Length;
+            if (_readBytes < DATA_ITEMS_COUNT * 10)
+                this.ReadPackage();
+
             var index = 0;
             while (index < data.Length)
             {
@@ -102,9 +109,6 @@ namespace Oak.Droid.Services
 
             if (this.Listener != null)
                 this.SetScanProgress();
-
-            if (this.Data.Count < DATA_ITEMS_COUNT)
-                this.ReadPackage();
         }
 
         private void AddScannerData(byte[] data, int startIndex)
@@ -124,6 +128,7 @@ namespace Oak.Droid.Services
             Task.Run(() => {
                 var progress = (double)((this.Data.Count) / (double)DATA_ITEMS_COUNT);
                 this.Listener.ScanProgress(progress);
+                Console.WriteLine("Progress: {0}", progress);
             });
         }
 
@@ -147,8 +152,11 @@ namespace Oak.Droid.Services
 
         public void RequestMtu()
         {
+            this.RequestConnectionPriority();
             if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Lollipop)
                 _bluetoothGatt.RequestMtu(103);
+            else
+                this.SendCommand();
         }
 
         private System.Random _random = new System.Random();
@@ -231,6 +239,7 @@ namespace Oak.Droid.Services
         public ScannerData[] Scan()
         {
             //var startTime = DateTime.Now;
+            _readBytes = 0;
 
             this.Data.Clear();
             this.ReadDataErrorMessage = "";
@@ -238,17 +247,11 @@ namespace Oak.Droid.Services
             if (!this.IsConnected)
                 throw new Exception("Scanner connection failed.");
 
-            var bluetoothService = _bluetoothGatt.GetService(SERVICE_UUID);
-            if (bluetoothService == null)
+            _bluetoothService = _bluetoothGatt.GetService(SERVICE_UUID);
+            if (_bluetoothService == null)
                 throw new Exception("Service of Scannner not found.");
 
-            var bluetoothCommand = bluetoothService.GetCharacteristic(COMMAND_UUID);
-            if (bluetoothCommand == null)
-                throw new Exception("Command characteristic not found.");
-
-            bluetoothCommand.SetValue("pb");
-            if (!_bluetoothGatt.WriteCharacteristic(bluetoothCommand))
-                throw new Exception("Failed to write Command (Push Button).");
+            this.RequestMtu();
 
             var isWait = true;
             while (isWait)
@@ -268,7 +271,18 @@ namespace Oak.Droid.Services
                 }
             }
 
-            return this.Data.ToArray();
+            return this.Data.OrderBy(d => d.X).ToArray();
+        }
+
+        public void SendCommand()
+        {
+            var bluetoothCommand = _bluetoothService.GetCharacteristic(COMMAND_UUID);
+            if (bluetoothCommand == null)
+                this.ReadDataErrorMessage = "Command characteristic not found.";
+
+            bluetoothCommand.SetValue("pb");
+            if (!_bluetoothGatt.WriteCharacteristic(bluetoothCommand))
+                this.ReadDataErrorMessage = "Failed to write Command (Push Button).";
         }
 
         public int Timeout { get; set; } = 30000;
@@ -325,8 +339,6 @@ namespace Oak.Droid.Services
                 if (newState == ProfileState.Connected)
                 {
                     Android.Util.Log.Info(ScannerService.TAG, "Connected to GATT server.");
-                    _scannerService.RequestConnectionPriority();
-                    _scannerService.RequestMtu();
                     _scannerService.DiscoverServices();
                     _scannerService.IsConnected = true;
                 }
@@ -373,6 +385,8 @@ namespace Oak.Droid.Services
             public override void OnMtuChanged(BluetoothGatt gatt, int mtu, [GeneratedEnum] GattStatus status)
             {
                 base.OnMtuChanged(gatt, mtu, status);
+
+                _scannerService.SendCommand();
 
                 Android.Util.Log.Warn(ScannerService.TAG, "OnMtuChanged received: " + status);
             }
