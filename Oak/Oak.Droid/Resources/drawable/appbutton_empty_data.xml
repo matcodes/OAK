@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
   <item
-      android:drawable="@drawable/appbutton_empty"
+      android:drawable="@drawable/appbutton_dark"
       android:state_enabled="false"/>
 
   <item

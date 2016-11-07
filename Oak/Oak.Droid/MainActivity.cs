@@ -9,6 +9,7 @@ using Oak.Classes.Messages;
 using Java.IO;
 using Android.Content;
 using Android.Net;
+using System.Collections.Generic;
 
 namespace Oak.Droid
 {
@@ -78,11 +79,16 @@ namespace Oak.Droid
 
         private void SendFileByEmail(SendFileByEmailMessage message)
         {
-            File file = new File(message.FileName);
-            var path = Uri.FromFile(file);
-            Intent emailIntent = new Intent(Intent.ActionSend);
+            var uries = new List<IParcelable>();
+            foreach (var fileName in message.FileNames)
+            {
+                File file = new File(fileName);
+                var path = Uri.FromFile(file);
+                uries.Add(path);
+            }
+            Intent emailIntent = new Intent(Intent.ActionSendMultiple);
             emailIntent.SetType("vnd.android.cursor.dir/email");
-            emailIntent.PutExtra(Intent.ExtraStream, path);
+            emailIntent.PutParcelableArrayListExtra(Intent.ExtraStream, uries);
             emailIntent.PutExtra(Intent.ExtraSubject, "OAK Scan Result");
             this.StartActivity(Intent.CreateChooser(emailIntent, "Send email..."));
         }

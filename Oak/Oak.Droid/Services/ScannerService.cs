@@ -154,7 +154,7 @@ namespace Oak.Droid.Services
         {
             this.RequestConnectionPriority();
             if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Lollipop)
-                _bluetoothGatt.RequestMtu(103);
+                _bluetoothGatt.RequestMtu(23);
             else
                 this.SendCommand();
         }

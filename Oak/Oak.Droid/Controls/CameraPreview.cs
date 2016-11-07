@@ -15,6 +15,7 @@ using Xamarin.Forms;
 using Oak.Services;
 using System.IO;
 using System.Threading.Tasks;
+using Android.Media;
 
 namespace Oak.Droid.Controls
 {
@@ -224,21 +225,87 @@ namespace Oak.Droid.Controls
         {
             camera.StartPreview();
             Task.Run(() => {
-                var fileService = DependencyService.Get<IFileService>();
+                try
+                {
+                    var fileService = DependencyService.Get<IFileService>();
 
-                var fileName = "photo_" + DateTime.Now.ToString() + ".jpg";
-                fileName = fileName.Replace("/", "_");
+                    var fileName = "photo_" + DateTime.Now.ToString() + ".jpg";
+                    fileName = fileName.Replace("/", "_");
 
-                fileName = Path.Combine(fileService.AppWorkPath, fileName);
+                    fileName = System.IO.Path.Combine(fileService.AppWorkPath, fileName);
 
-                File.WriteAllBytes(fileName, data);
+ //                   File.WriteAllBytes(fileName, data);
+
+                    var rotate = 90;
+                    if (rotate > 0)
+                    {
+                        var matrix = new Android.Graphics.Matrix();
+                        matrix.PostRotate(rotate);
+
+                        var bitmap = Android.Graphics.BitmapFactory.DecodeByteArray(data, 0, data.Length); // MediaStore.Images.Media.GetBitmap(this.ContentResolver, Android.Net.Uri.Parse(uri));
+                        var rotatedBitmap = Android.Graphics.Bitmap.CreateBitmap(bitmap, 0, 0, bitmap.Width, bitmap.Height, matrix, true);
+                        bitmap.Recycle();
+                        bitmap = rotatedBitmap;
+
+                        using (var finalStream = new MemoryStream())
+                        {
+                            bitmap.Compress(Android.Graphics.Bitmap.CompressFormat.Jpeg, 100, finalStream);
+                            data = finalStream.GetBuffer();
+                        }
+
+                        File.WriteAllBytes(fileName, data);
+
+                        bitmap.Recycle();
+                        GC.Collect();
+                    }
+
+                    if (this.CameraPreviewCallback != null)
+                        this.CameraPreviewCallback.AfterPictureTaken(fileName);
+                }
+                catch
+                {
+
+                }
             });
+        }
+
+        private int GetRotation(string fileName)
+        {
+            var rotate = 0;
+            if (!String.IsNullOrEmpty(fileName))
+            {
+                ExifInterface exif = new ExifInterface(fileName);
+                //int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                var orientation = exif.GetAttributeInt(ExifInterface.TagOrientation, (int)Android.Media.Orientation.Normal);
+                switch (orientation)
+                {
+                    case (int)Android.Media.Orientation.Rotate270:
+                        rotate = 270;
+                        break;
+                    case (int)Android.Media.Orientation.Rotate180:
+                        rotate = 180;
+                        break;
+                    case (int)Android.Media.Orientation.Rotate90:
+                        rotate = 90;
+                        break;
+                }
+            }
+            return rotate;
         }
         #endregion
 
         #region IAutoFocusCallback
         public void OnAutoFocus(bool success, Camera camera)
         {
+        }
+        #endregion
+
+        public ICameraPreviewCallback CameraPreviewCallback { get; set; }
+
+        #region ICameraPreviewCallback
+        public interface ICameraPreviewCallback
+        {
+            void AfterPictureTaken(string fileName);
         }
         #endregion
     }

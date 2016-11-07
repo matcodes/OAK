@@ -11,9 +11,9 @@ namespace Oak.Classes.Messages
         #region Static members
         private static readonly string MESSAGE_KEY = "SendFileByEmailMessage";
 
-        public static void Send(string fileName)
+        public static void Send(string[] fileNames)
         {
-            var message = new SendFileByEmailMessage(fileName);
+            var message = new SendFileByEmailMessage(fileNames);
             MessagingCenter.Send<SendFileByEmailMessage>(message, MESSAGE_KEY);
         }
 
@@ -28,12 +28,12 @@ namespace Oak.Classes.Messages
         }
         #endregion
 
-        public SendFileByEmailMessage(string fileName)
+        public SendFileByEmailMessage(string[] fileNames)
         {
-            this.FileName = fileName;
+            this.FileNames = fileNames;
         }
 
-        public string FileName { get; private set; }
+        public string[] FileNames { get; private set; }
     }
     #endregion
 }

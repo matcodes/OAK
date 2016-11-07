@@ -293,7 +293,9 @@ namespace Oak.Views
         {
             Device.BeginInvokeOnMainThread(() => {
                 _mainPanel.RaiseChild(_selectProductPanel);
+                _rescanPanel.FadeTo(0, ANIMATION_TIME);
                 _cameraHelpPanel.FadeTo(0, ANIMATION_TIME);
+                _storePanel.FadeTo(0, ANIMATION_TIME);
                 _selectProductPanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -336,6 +338,7 @@ namespace Oak.Views
                 _rescanPanel.FadeTo(0, ANIMATION_TIME);
                 _keepPanel.FadeTo(0, ANIMATION_TIME);
                 _comparePanel.FadeTo(0, ANIMATION_TIME);
+                _checkPanel.FadeTo(0, ANIMATION_TIME);
                 _storePanel.FadeTo(1, ANIMATION_TIME);
             });
         }
@@ -978,6 +981,7 @@ namespace Oak.Views
                 VerticalOptions = LayoutOptions.Fill
             };
             camera.SetBinding(AppCameraPreview.TakePhotoProperty, "IsTakePhoto", BindingMode.TwoWay);
+            camera.SetBinding(AppCameraPreview.LastFileNameProperty, "LastImageFileName", BindingMode.OneWayToSource);
 
             var cameraContent = new ContentView {
                 HorizontalOptions = LayoutOptions.Fill,
@@ -1715,8 +1719,8 @@ namespace Oak.Views
             checkContent.Children.Add(program6, 1, 2);
             checkContent.Children.Add(program7, 0, 3);
             checkContent.Children.Add(program8, 1, 3);
-            checkContent.Children.Add(check, 0, 4);
-            checkContent.Children.Add(next, 1, 4);
+            //checkContent.Children.Add(check, 0, 4);
+            //checkContent.Children.Add(next, 1, 4);
             #endregion
 
             var grid = new Grid

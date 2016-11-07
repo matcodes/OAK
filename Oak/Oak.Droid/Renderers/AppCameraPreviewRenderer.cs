@@ -21,7 +21,7 @@ using System.ComponentModel;
 namespace Oak.Droid.Renderers
 {
     #region AppCameraPreviewRenderer
-    public class AppCameraPreviewRenderer : ViewRenderer<AppCameraPreview, CameraPreview>
+    public class AppCameraPreviewRenderer : ViewRenderer<AppCameraPreview, CameraPreview>, CameraPreview.ICameraPreviewCallback
     {
         private CameraPreview _cameraPreview;
 
@@ -32,6 +32,7 @@ namespace Oak.Droid.Renderers
             if (this.Control == null)
             {
                 _cameraPreview = new CameraPreview(Context);
+                _cameraPreview.CameraPreviewCallback = this;
                 SetNativeControl(_cameraPreview);
             }
 
@@ -82,6 +83,14 @@ namespace Oak.Droid.Renderers
             }
             base.Dispose(disposing);
         }
+
+        #region CameraPreview.ICameraPreviewCallback
+        public void AfterPictureTaken(string fileName)
+        {
+            if (this.Element != null)
+                this.Element.LastFileName = fileName;
+        }
+        #endregion
     }
     #endregion
 }

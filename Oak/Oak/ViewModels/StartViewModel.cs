@@ -100,10 +100,35 @@ namespace Oak.ViewModels
                     this.SetProgramsParams();
 
                 if (this.State == StartPageStates.Programs)
+                {
                     this.IsRetestVisible = false;
 
+                    this.Program1Command.IsEnabled = true;
+                    this.Program2Command.IsEnabled = true;
+                    this.Program3Command.IsEnabled = true;
+                    this.Program4Command.IsEnabled = true;
+                    this.Program5Command.IsEnabled = true;
+                    this.Program6Command.IsEnabled = true;
+                    this.Program7Command.IsEnabled = true;
+                    this.Program8Command.IsEnabled = true;
+                }
+
                 if (this.State == StartPageStates.Check)
+                {
                     this.IsRetestVisible = true;
+
+                    this.Program1Command.IsEnabled = this.FileExist(1);
+                    this.Program2Command.IsEnabled = this.FileExist(2);
+                    this.Program3Command.IsEnabled = this.FileExist(3);
+                    this.Program4Command.IsEnabled = this.FileExist(4);
+                    this.Program5Command.IsEnabled = this.FileExist(5);
+                    this.Program6Command.IsEnabled = this.FileExist(6);
+                    this.Program7Command.IsEnabled = this.FileExist(7);
+                    this.Program8Command.IsEnabled = this.FileExist(8);
+                }
+
+                if (this.State == StartPageStates.Store)
+                    this.SetTestButtonEnabled();
             }
 
             base.DoPropertyChanged(propertyName);
@@ -120,6 +145,14 @@ namespace Oak.ViewModels
             }
 
             return result;
+        }
+
+        private void SetTestButtonEnabled()
+        {
+            Device.BeginInvokeOnMainThread(() => {
+                this.TestCommand.IsEnabled = this.FileExist(1) || this.FileExist(2) || this.FileExist(3) || this.FileExist(4) ||
+                    this.FileExist(5) || this.FileExist(6) || this.FileExist(7) || this.FileExist(8);
+            });
         }
 
         private string GetFileName(int index)
@@ -349,12 +382,12 @@ namespace Oak.ViewModels
 
         private void Milk(object parameter)
         {
-            this.SetProductCategory(ProductCategories.Water);
+            this.SetProductCategory(ProductCategories.Milk);
         }
 
         private void Water(object parameter)
         {
-            this.SetProductCategory(ProductCategories.Oil);
+            this.SetProductCategory(ProductCategories.Water);
         }
 
         private void TakePhoto(object parameter)
@@ -441,7 +474,11 @@ namespace Oak.ViewModels
                 {
                     var fileName = this.GetFileName();
                     this.SaveDataToCsv(fileName);
-                    SendFileByEmailMessage.Send(fileName);
+                    var files = new List<string>();
+                    files.Add(fileName);
+                    if (!String.IsNullOrEmpty(this.LastImageFileName))
+                        files.Add(this.LastImageFileName);
+                    SendFileByEmailMessage.Send(files.ToArray());
                     this.State = StartPageStates.Rescan;
                 }
                 catch (Exception exception)
@@ -521,7 +558,7 @@ namespace Oak.ViewModels
 
         private void Rescan(object parameter)
         {
-            this.State = StartPageStates.Scan;
+            this.State = StartPageStates.SelectProduct;
         }
 
         private void Retest(object parameter)
@@ -660,6 +697,12 @@ namespace Oak.ViewModels
         {
             get { return (double)this.GetValue("Progress", (double)0); }
             set { this.SetValue("Progress", value); }
+        }
+
+        public string LastImageFileName
+        {
+            get { return (string)this.GetValue("LastImageFileName"); }
+            set { this.SetValue("LastImageFileName", value); }
         }
 
         public VisualCommand StartConnectionCommand { get; private set; }
